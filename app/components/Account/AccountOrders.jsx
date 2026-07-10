@@ -702,8 +702,6 @@ class AccountOrders extends React.Component {
         const {selectedOrders} = this.state;
 
         const ordersTable = this._renderOrdersTable();
-        const settleOrdersTable = this._renderSettleOrdersTable();
-
         const tables = [ordersTable];
 
         let onGroupChange = (checked, evt) => {
@@ -712,8 +710,6 @@ class AccountOrders extends React.Component {
             });
             this.setState({areAssetsGrouped: checked});
         };
-
-        let settleOrdersCount = account.get("settle_orders").size;
 
         return (
             <div
@@ -765,40 +761,22 @@ class AccountOrders extends React.Component {
                     ) : null}
                 </div>
 
-                <div>
-                    {settleOrdersCount > 0 && (
-                        <div className="header-selector">
-                            <Translate content="account.market_orders" />
-                        </div>
-                    )}
-                    {tables}
-                </div>
-                {settleOrdersCount > 0 && (
-                    <div className="grid-wrapper" key="settleGroupedTable">
-                        <div className="header-selector">
-                            <Translate content="account.settle_orders" />
-                        </div>
-                        {settleOrdersTable}
-                    </div>
-                )}
+                <div>{tables}</div>
             </div>
         );
     }
 }
 
-AccountOrders = connect(
-    AccountOrders,
-    {
-        listenTo() {
-            return [SettingsStore];
-        },
-        getProps() {
-            return {
-                marketDirections: SettingsStore.getState().marketDirections,
-                viewSettings: SettingsStore.getState().viewSettings
-            };
-        }
+AccountOrders = connect(AccountOrders, {
+    listenTo() {
+        return [SettingsStore];
+    },
+    getProps() {
+        return {
+            marketDirections: SettingsStore.getState().marketDirections,
+            viewSettings: SettingsStore.getState().viewSettings
+        };
     }
-);
+});
 
 export default AccountOrders;

@@ -45,6 +45,27 @@
     }
 }
 
+.app-logo-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.header-logo-frame {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+}
+
 div.header-balance {
     a {
         font-size: 90%;

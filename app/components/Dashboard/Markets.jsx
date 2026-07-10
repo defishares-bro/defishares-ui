@@ -8,6 +8,8 @@ import SettingsStore from "stores/SettingsStore";
 import MarketsStore from "stores/MarketsStore";
 import MarketsTable from "./MarketsTable";
 
+const DEFISHARES_CHAIN_PREFIX = "300a25f6";
+
 class StarredMarkets extends React.Component {
     render() {
         return (
@@ -49,7 +51,7 @@ class FeaturedMarkets extends React.Component {
     _getMarkets(state = this.state, props = this.props) {
         const {chainID} = state;
 
-        if (chainID === "4018d784") {
+        if (chainID === DEFISHARES_CHAIN_PREFIX) {
             return props.markets;
         } else {
             // assume testnet

@@ -10,7 +10,7 @@ import {price} from "bitsharesjs/es/serializer/src/operations";
 let inProgress = {};
 
 class AssetActions {
-    publishFeed({publisher, asset_id, mcr, mssr, feedPrice, cer}) {
+    publishFeed({publisher, asset_id, icr, mcr, mssr, feedPrice, cer}) {
         let tr = WalletApi.new_transaction();
         /**
          * The naming convention is confusing!
@@ -27,6 +27,7 @@ class AssetActions {
             asset_id,
             feed: {
                 settlement_price: feedPrice.toObject(),
+                initial_collateral_ratio: icr,
                 maintenance_collateral_ratio: mcr,
                 maximum_short_squeeze_ratio: mssr,
                 core_exchange_rate: cer.toObject()

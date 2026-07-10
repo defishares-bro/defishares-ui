@@ -126,128 +126,15 @@ export const nodeRegions = [
 export const settingsAPIs = {
     // If you want a location to be translated, add the translation to settings in locale-xx.js
     // and use an object {translate: key} in WS_NODE_LIST
-    DEFAULT_WS_NODE: "wss://fake.automatic-selection.com",
+    DEFAULT_WS_NODE: "wss://api.defishares.org/ws/",
     WS_NODE_LIST: [
         {
-            url: "wss://fake.automatic-selection.com",
-            location: {translate: "settings.api_closest"}
+            url: "wss://api.defishares.org/ws/",
+            location: "DefiShares Public Testnet"
         },
         {
             url: "ws://127.0.0.1:8090",
             location: "Locally hosted"
-        },
-        {
-            url: "wss://dex.iobanker.com/ws",
-            region: "Western Europe",
-            country: "Germany",
-            location: "Frankfurt",
-            operator: "Witness: iobanker-core",
-            contact: "email:admin@iobanker.com"
-        },
-        {
-            url: "wss://api.bitshares.dev/ws",
-            region: "Northern America",
-            country: "U.S.A.",
-            location: "Virginia",
-            operator: "Witness: in.abit",
-            contact: "telegram:abitmore"
-        },
-        {
-            url: "wss://btsws.roelandp.nl/ws",
-            region: "Northern Europe",
-            country: "Finland",
-            location: "Helsinki",
-            operator: "Witness: roelandp",
-            contact: "telegram:roelandp"
-        },
-        {
-            url: "wss://api.dex.trading/",
-            region: "Western Europe",
-            country: "France",
-            location: "Paris",
-            operator: "Witness: zapata42-witness",
-            contact: "telegram:Zapata_42"
-        },
-        //{
-        //    url: "wss://eu.nodes.bitshares.ws",
-        //    region: "Western Europe",
-        //    country: "Germany",
-        //    location: "Nuremberg",
-        //    operator: "Witness: blocksights",
-        //    contact: "telegram:blocksights"
-        //},
-        {
-            url: "wss://public.xbts.io/ws",
-            region: "Western Europe",
-            country: "Germany",
-            location: "Nuremberg",
-            operator: "Witness: xbtsio-wallet",
-            contact: "telegram: xbtsio"
-        },
-        {
-            url: "wss://cloud.xbts.io/ws",
-            region: "Northern America",
-            country: "U.S.A.",
-            location: "VG, Ashburn",
-            operator: "Witness: xbtsio-wallet",
-            contact: "telegram: xbtsio"
-        },
-        {
-            url: "wss://node.xbts.io/ws",
-            region: "Western Europe",
-            country: "Germany",
-            location: "Falkenstein",
-            operator: "Witness: xbtsio-wallet",
-            contact: "telegram: xbtsio"
-        },
-        {
-            url: "wss://api.btslebin.com/ws",
-            region: "Eastern Asia",
-            country: "China",
-            location: "Hong Kong",
-            operator: "Witness: lebin-witness",
-            contact: "telegram: lebinbit"
-        },
-        {
-            url: "wss://bitsharesapi.loclx.io",
-            region: "North America",
-            country: "United States",
-            location: "Chicago",
-            operator: "bitshares.info",
-            contact: "telegram:brekyrself"
-        },
-        // Testnet
-        //{
-        //    url: "wss://eu.nodes.testnet.bitshares.ws",
-        //    region: "TESTNET - Western Europe",
-        //    country: "Germany",
-        //    location: "Nuremberg",
-        //    operator: "Witness: blocksights",
-        //    contact: "telegram:blocksights"
-        //},
-        {
-            url: "wss://testnet.dex.trading/",
-            region: "TESTNET - Western Europe",
-            country: "France",
-            location: "Paris",
-            operator: "Witness: zapata42-witness",
-            contact: "telegram:Zapata_42"
-        },
-        {
-            url: "wss://testnet.xbts.io/ws",
-            region: "TESTNET - Europe",
-            country: "Germany",
-            location: "Nuremberg",
-            operator: "Witness: xbtsio-wallet",
-            contact: "telegram: xbtsio"
-        },
-        {
-            url: "wss://bitsharestestnet.loclx.io",
-            region: "Northern America",
-            country: "USA",
-            location: "Chicago",
-            operator: "bitshares.info",
-            contact: "telegram:brekyrself"
         }
     ],
     ES_WRAPPER_LIST: [

@@ -362,8 +362,7 @@ class Exchange extends React.Component {
             panelTabs: ws.get("panelTabs", {
                 my_history: 1,
                 history: 1,
-                my_orders: 2,
-                open_settlement: 2
+                my_orders: 2
             }),
             panelTabsActive: ws.get("panelTabsActive", {
                 1: "my_history",
@@ -422,32 +421,6 @@ class Exchange extends React.Component {
         });
     }
 
-    showBorrowQuoteModal() {
-        this.setState({
-            isBorrowQuoteModalVisible: true,
-            isBorrowQuoteModalLoaded: true
-        });
-    }
-
-    hideBorrowQuoteModal() {
-        this.setState({
-            isBorrowQuoteModalVisible: false
-        });
-    }
-
-    showBorrowBaseModal() {
-        this.setState({
-            isBorrowBaseModalVisible: true,
-            isBorrowBaseModalLoaded: true
-        });
-    }
-
-    hideBorrowBaseModal() {
-        this.setState({
-            isBorrowBaseModalVisible: false
-        });
-    }
-
     showDepositBridgeModal() {
         this.setState({
             isDepositBridgeModalVisible: true,
@@ -471,6 +444,32 @@ class Exchange extends React.Component {
     hideDepositModal() {
         this.setState({
             isDepositModalVisible: false
+        });
+    }
+
+    showBorrowQuoteModal() {
+        this.setState({
+            isBorrowQuoteModalVisible: true,
+            isBorrowQuoteModalLoaded: true
+        });
+    }
+
+    hideBorrowQuoteModal() {
+        this.setState({
+            isBorrowQuoteModalVisible: false
+        });
+    }
+
+    showBorrowBaseModal() {
+        this.setState({
+            isBorrowBaseModalVisible: true,
+            isBorrowBaseModalLoaded: true
+        });
+    }
+
+    hideBorrowBaseModal() {
+        this.setState({
+            isBorrowBaseModalVisible: false
         });
     }
 
@@ -1556,20 +1555,20 @@ class Exchange extends React.Component {
         this.setState(newState);
     }
 
-    _borrowQuote() {
-        this.showBorrowQuoteModal();
-    }
-
-    _borrowBase() {
-        this.showBorrowBaseModal();
-    }
-
     _onDeposit(type) {
         this.setState({
             depositModalType: type
         });
 
         this.showDepositModal();
+    }
+
+    _borrowQuote() {
+        this.showBorrowQuoteModal();
+    }
+
+    _borrowBase() {
+        this.showBorrowBaseModal();
     }
 
     _onBuy(type) {
@@ -1890,6 +1889,7 @@ class Exchange extends React.Component {
             bucketSize,
             totals,
             feedPrice,
+            referencePrice,
             buckets,
             coreAsset,
             trackedGroupsConfig,
@@ -1991,7 +1991,7 @@ class Exchange extends React.Component {
                 }
             }
 
-            showCallLimit = this._getSettlementInfo();
+            showCallLimit = false;
         }
 
         let quoteIsBitAsset = quoteAsset.get("bitasset_data_id") ? true : false;
@@ -2653,45 +2653,6 @@ class Exchange extends React.Component {
                 />
             );
 
-        let settlementOrders =
-            marketSettleOrders.size === 0 ||
-            (tinyScreen &&
-                !this.state.mobileKey.includes("settlementOrders")) ? null : (
-                <MarketOrders
-                    key={`actionCard_${actionCardIndex++}`}
-                    style={{marginBottom: !tinyScreen ? 15 : 0}}
-                    className={cnames(
-                        panelTabs["open_settlement"] == 0
-                            ? centerContainerWidth > 1200
-                                ? "medium-6 large-6 xlarge-4"
-                                : centerContainerWidth > 800
-                                ? "medium-6"
-                                : ""
-                            : "medium-12",
-                        "no-padding no-overflow middle-content small-12 order-8"
-                    )}
-                    innerClass={!tinyScreen ? "exchange-padded" : ""}
-                    innerStyle={{paddingBottom: !tinyScreen ? "1.2rem" : "0"}}
-                    noHeader={panelTabs["open_settlement"] == 0 ? false : true}
-                    orders={marketLimitOrders}
-                    settleOrders={marketSettleOrders}
-                    currentAccount={currentAccount}
-                    base={base}
-                    quote={quote}
-                    baseSymbol={baseSymbol}
-                    quoteSymbol={quoteSymbol}
-                    activeTab={"open_settlement"}
-                    onCancel={this._cancelLimitOrder.bind(this)}
-                    flipMyOrders={this.props.viewSettings.get("flipMyOrders")}
-                    feedPrice={this.props.feedPrice}
-                    smallScreen={smallScreen}
-                    tinyScreen={tinyScreen}
-                    hidePanel={hidePanel}
-                    isPanelActive={isPanelActive}
-                    hideScrollbars={hideScrollbars}
-                />
-            );
-
         let tradingViewChart =
             (!tinyScreen && !(chartType == "price_chart")) ||
             (tinyScreen &&
@@ -2720,15 +2681,13 @@ class Exchange extends React.Component {
                 <DepthHighChart
                     marketReady={marketReady}
                     orders={marketLimitOrders}
-                    showCallLimit={showCallLimit}
-                    call_orders={marketCallOrders}
+                    showCallLimit={false}
+                    call_orders={[]}
                     flat_asks={flatAsks}
                     flat_bids={flatBids}
-                    flat_calls={showCallLimit ? flatCalls : []}
-                    flat_settles={
-                        this.props.settings.get("showSettles") && flatSettles
-                    }
-                    settles={marketSettleOrders}
+                    flat_calls={[]}
+                    flat_settles={[]}
+                    settles={[]}
                     invertedCalls={invertedCalls}
                     totalBids={totals.bid}
                     totalAsks={totals.ask}
@@ -2741,7 +2700,7 @@ class Exchange extends React.Component {
                         !hasPrediction && feedPrice && feedPrice.toReal()
                     }
                     spread={spread}
-                    LCP={showCallLimit ? lowestCallPrice : null}
+                    LCP={null}
                     hasPrediction={hasPrediction}
                     noFrame={false}
                     theme={this.props.settings.get("themes")}
@@ -2945,10 +2904,6 @@ class Exchange extends React.Component {
                     if (a == "my_orders") {
                         groupStandalone.push(myOpenOrders);
                     }
-
-                    if (a == "open_settlement" && settlementOrders !== null) {
-                        groupStandalone.push(settlementOrders);
-                    }
                 } else {
                     if (a == "my_history") {
                         groupTabs[panelTabs[a]].push(
@@ -2981,19 +2936,6 @@ class Exchange extends React.Component {
                                 key="my_orders"
                             >
                                 {myOpenOrders}
-                            </Tabs.TabPane>
-                        );
-                    }
-
-                    if (a == "open_settlement" && settlementOrders !== null) {
-                        groupTabs[panelTabs[a]].push(
-                            <Tabs.TabPane
-                                tab={translator.translate(
-                                    "exchange.settle_orders"
-                                )}
-                                key="open_settlement"
-                            >
-                                {settlementOrders}
                             </Tabs.TabPane>
                         );
                     }
@@ -3183,16 +3125,6 @@ class Exchange extends React.Component {
                     >
                         {marketHistory}
                     </Collapse.Panel>
-                    {settlementOrders !== null ? (
-                        <Collapse.Panel
-                            header={translator.translate(
-                                "exchange.settle_orders"
-                            )}
-                            key="settlementOrders"
-                        >
-                            {settlementOrders}
-                        </Collapse.Panel>
-                    ) : null}
                     <Collapse.Panel
                         header={translator.translate("exchange.my_history")}
                         key="myMarketHistory"
@@ -3389,6 +3321,7 @@ class Exchange extends React.Component {
                     lowestCallPrice={lowestCallPrice}
                     showCallLimit={showCallLimit}
                     feedPrice={feedPrice}
+                    referencePrice={referencePrice}
                     marketReady={marketReady}
                     latestPrice={latest && latest.getPrice()}
                     marketStats={marketStats}
@@ -3535,37 +3468,6 @@ class Exchange extends React.Component {
                     {/* End of Second Vertical Block */}
                 </div>
 
-                {quoteIsBitAsset &&
-                (this.state.isBorrowQuoteModalVisible ||
-                    this.state.isBorrowQuoteModalLoaded) ? (
-                    <BorrowModal
-                        visible={this.state.isBorrowQuoteModalVisible}
-                        hideModal={this.hideBorrowQuoteModal}
-                        quoteAssetObj={quoteAsset.get("id")}
-                        backingAssetObj={quoteAsset.getIn([
-                            "bitasset",
-                            "options",
-                            "short_backing_asset"
-                        ])}
-                        accountObj={currentAccount}
-                    />
-                ) : null}
-                {baseIsBitAsset &&
-                (this.state.isBorrowBaseModalVisible ||
-                    this.state.isBorrowBaseModalLoaded) ? (
-                    <BorrowModal
-                        visible={this.state.isBorrowBaseModalVisible}
-                        hideModal={this.hideBorrowBaseModal}
-                        quoteAssetObj={baseAsset.get("id")}
-                        backingAssetObj={baseAsset.getIn([
-                            "bitasset",
-                            "options",
-                            "short_backing_asset"
-                        ])}
-                        accountObj={currentAccount}
-                    />
-                ) : null}
-
                 {this.state.isDepositModalVisible ||
                 this.state.isDepositModalLoaded ? (
                     <SimpleDepositWithdraw
@@ -3625,6 +3527,37 @@ class Exchange extends React.Component {
                                     : quote.get("symbol")
                             ) || null
                         }
+                    />
+                ) : null}
+
+                {quoteIsBitAsset &&
+                (this.state.isBorrowQuoteModalVisible ||
+                    this.state.isBorrowQuoteModalLoaded) ? (
+                    <BorrowModal
+                        visible={this.state.isBorrowQuoteModalVisible}
+                        hideModal={this.hideBorrowQuoteModal}
+                        quoteAssetObj={quoteAsset.get("id")}
+                        backingAssetObj={quoteAsset.getIn([
+                            "bitasset",
+                            "options",
+                            "short_backing_asset"
+                        ])}
+                        accountObj={currentAccount}
+                    />
+                ) : null}
+                {baseIsBitAsset &&
+                (this.state.isBorrowBaseModalVisible ||
+                    this.state.isBorrowBaseModalLoaded) ? (
+                    <BorrowModal
+                        visible={this.state.isBorrowBaseModalVisible}
+                        hideModal={this.hideBorrowBaseModal}
+                        quoteAssetObj={baseAsset.get("id")}
+                        backingAssetObj={baseAsset.getIn([
+                            "bitasset",
+                            "options",
+                            "short_backing_asset"
+                        ])}
+                        accountObj={currentAccount}
                     />
                 ) : null}
 

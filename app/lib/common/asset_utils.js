@@ -1,6 +1,103 @@
 import assetConstants from "../chain/asset_constants";
 import utils from "./utils";
 
+export function getReferencePrice(quoteAsset, baseAsset) {
+    if (!quoteAsset || !baseAsset) return null;
+
+    const getValue = (asset, path, fallback = null) => {
+        if (asset.getIn) return asset.getIn(path, fallback);
+        return path.reduce(
+            (value, key) =>
+                value && typeof value === "object" ? value[key] : fallback,
+            asset
+        );
+    };
+
+    const feedReference = asset => {
+        const assetId = getValue(asset, ["id"]);
+        const precision = getValue(asset, ["precision"]);
+        if (!assetId || typeof precision !== "number") return null;
+
+        let rawPrice;
+        try {
+            rawPrice = AssetUtils.extractRawFeedPrice(asset);
+        } catch (error) {
+            return null;
+        }
+
+        rawPrice = rawPrice && rawPrice.toJS ? rawPrice.toJS() : rawPrice;
+        if (!rawPrice || !rawPrice.base || !rawPrice.quote) return null;
+
+        let referenceSide;
+        let assetSide;
+        if (rawPrice.base.asset_id === assetId) {
+            assetSide = rawPrice.base;
+            referenceSide = rawPrice.quote;
+        } else if (rawPrice.quote.asset_id === assetId) {
+            assetSide = rawPrice.quote;
+            referenceSide = rawPrice.base;
+        } else {
+            return null;
+        }
+
+        const assetAmount = Number(assetSide.amount);
+        const referenceAmount = Number(referenceSide.amount);
+        if (
+            !isFinite(assetAmount) ||
+            !isFinite(referenceAmount) ||
+            assetAmount <= 0 ||
+            referenceAmount <= 0
+        ) {
+            return null;
+        }
+
+        return {
+            referenceAssetId: referenceSide.asset_id,
+            referenceSatoshisPerAsset:
+                (referenceAmount / assetAmount) * Math.pow(10, precision)
+        };
+    };
+
+    const quoteId = getValue(quoteAsset, ["id"]);
+    const baseId = getValue(baseAsset, ["id"]);
+    const quotePrecision = getValue(quoteAsset, ["precision"]);
+    const basePrecision = getValue(baseAsset, ["precision"]);
+    if (
+        !quoteId ||
+        !baseId ||
+        typeof quotePrecision !== "number" ||
+        typeof basePrecision !== "number"
+    ) {
+        return null;
+    }
+
+    const quoteReference = feedReference(quoteAsset);
+    const baseReference = feedReference(baseAsset);
+    let referencePrice = null;
+
+    if (quoteReference && quoteReference.referenceAssetId === baseId) {
+        referencePrice =
+            quoteReference.referenceSatoshisPerAsset /
+            Math.pow(10, basePrecision);
+    } else if (baseReference && baseReference.referenceAssetId === quoteId) {
+        referencePrice =
+            Math.pow(10, quotePrecision) /
+            baseReference.referenceSatoshisPerAsset;
+    } else if (
+        quoteReference &&
+        baseReference &&
+        quoteReference.referenceAssetId === baseReference.referenceAssetId
+    ) {
+        referencePrice =
+            quoteReference.referenceSatoshisPerAsset /
+            baseReference.referenceSatoshisPerAsset;
+    }
+
+    return referencePrice && isFinite(referencePrice) && referencePrice > 0
+        ? referencePrice
+        : null;
+}
+
 export default class AssetUtils {
     static getFlagBooleans(mask, isBitAsset = false) {
         let booleans = {
@@ -130,5 +227,9 @@ export default class AssetUtils {
             return asset.getIn(["current_feed", "settlement_price"]);
         }
         throw "Feed price not found!";
+    }
+
+    static getReferencePrice(quoteAsset, baseAsset) {
+        return getReferencePrice(quoteAsset, baseAsset);
     }
 }

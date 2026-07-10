@@ -65,7 +65,8 @@ export default class PriceStatWithLabel extends React.Component {
             ready,
             volume,
             toolTip,
-            ignoreColorChange
+            ignoreColorChange,
+            valueClassName
         } = this.props;
         let {change, marketChange} = this.state;
         let changeClasses = null;
@@ -93,7 +94,12 @@ export default class PriceStatWithLabel extends React.Component {
             >
                 <Tooltip placement="bottom" title={toolTip}>
                     <span>
-                        <span className="value stat-primary">
+                        <span
+                            className={cnames(
+                                "value stat-primary",
+                                valueClassName
+                            )}
+                        >
                             {!ready ? 0 : value}
                             &nbsp;
                         </span>

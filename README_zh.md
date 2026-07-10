@@ -1,13 +1,21 @@
-BitShares-UI
+DefiShares UI
 ============
 
-这是一个连接 BitShares API 的轻钱包。BitShares API 由 *witness_node* 程序提供。
+这是一个基于 [bitshares-ui](https://github.com/bitshares/bitshares-ui) 分叉出来的 DefiShares 前端钱包，默认连接 `defishares-core` 提供的链上 API。
+
+当前这个分支的默认设置如下：
+
+- 核心资产：`DFS`
+- 地址前缀：`DFS`
+- 默认 websocket 节点：`ws://127.0.0.1:8090`
+- 默认市场：`GOLD_DFS`
+- 充提网关入口：暂时关闭
 
 这个钱包**将所有的密钥存储在本地浏览器上**，**不会把你的密钥上传到网络**，因为它会先在本地对交易签名，再传输到 API 服务器上，由服务器广播至区块链网络。钱包由用户选择的密码加密并储存在浏览器数据库中。
 
 ## 项目依赖
 
-BitShares-UI 依赖于 Node.js v16 以上版本。
+DefiShares UI 依赖于 Node.js v16 以上版本。
 
 在 Linux 和 macOS 上，安装 Node 最简单的方式是用 [NVM](https://github.com/creationix/nvm)。
 
@@ -43,9 +51,7 @@ yarn start
 
 ## 测试网络
 
-默认情况下，bitshares-ui 将连接到 BitShares 主网。 通过在节点设置中选择 *Testnet* 也可以轻松切换到 testnet。 UI 将刷新并连接到测试网络。
-
-还有一个现成的直接连接到测试网的部署（包括创建测试帐户的功能） [在此](https://test.xbts.io/)。
+默认情况下，这个分支会连接本机的 DefiShares websocket 节点 `ws://127.0.0.1:8090`。如果你的节点监听在其他地址或端口，可以在设置页面中手动修改。
 
 ![image](https://user-images.githubusercontent.com/33128181/175760811-736c9b21-9122-4160-bd30-465bb755a3a3.png)
 

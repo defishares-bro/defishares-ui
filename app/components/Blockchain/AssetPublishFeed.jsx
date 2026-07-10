@@ -26,16 +26,17 @@ class AssetPublishFeed extends React.Component {
         const currentFeed = props.asset.getIn(["bitasset", "current_feed"]);
 
         /* Might need to check these default values */
+        let icr = currentFeed.get("initial_collateral_ratio", 2000);
         let mcr = currentFeed.get("maintenance_collateral_ratio", 1750);
         let mssr = currentFeed.get("maximum_short_squeeze_ratio", 1100);
 
         return {
             publisher: props.account.get("name"),
             publisher_id,
+            icr,
+            icrValue: icr / 1000,
             mcr,
-            mcrValue: mcr / 1000,
-            mssr,
-            mssrValue: mssr / 1000
+            mssr
         };
     }
 
@@ -55,6 +56,7 @@ class AssetPublishFeed extends React.Component {
         AssetActions.publishFeed({
             publisher: this.state.publisher_id,
             asset_id: this.props.asset.get("id"),
+            icr: this.state.icr,
             mcr: this.state.mcr,
             mssr: this.state.mssr,
             feedPrice: this.state.feedPrice,
@@ -89,7 +91,7 @@ class AssetPublishFeed extends React.Component {
 
     render() {
         const {asset} = this.props;
-        const {mcrValue, mssrValue, publisher} = this.state;
+        const {icrValue, publisher} = this.state;
 
         const base = asset.get("id");
         const quote = asset.getIn([
@@ -132,25 +134,12 @@ class AssetPublishFeed extends React.Component {
                     base={base}
                 />
 
-                {/* MCR */}
+                {/* ICR */}
                 <br />
                 <AmountSelector
-                    label="explorer.asset.price_feed.maintenance_collateral_ratio"
-                    amount={mcrValue}
-                    onChange={this.onSetRatio.bind(this, "mcr")}
-                    placeholder="0.0"
-                    style={{
-                        width: "100%",
-                        paddingRight: "10px"
-                    }}
-                />
-
-                {/* MSSR */}
-                <br />
-                <AmountSelector
-                    label="explorer.asset.price_feed.maximum_short_squeeze_ratio"
-                    amount={mssrValue}
-                    onChange={this.onSetRatio.bind(this, "mssr")}
+                    label="explorer.asset.price_feed.initial_collateral_ratio"
+                    amount={icrValue}
+                    onChange={this.onSetRatio.bind(this, "icr")}
                     placeholder="0.0"
                     style={{
                         width: "100%",

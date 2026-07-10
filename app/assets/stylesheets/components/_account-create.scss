@@ -25,6 +25,12 @@ div.account-creation {
     margin-top: 2rem;
     padding: 2rem 2rem 1rem 2rem;
 
+    .account-logo-frame {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+
     p {
         max-width: 95vw;
     }

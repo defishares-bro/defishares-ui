@@ -323,7 +323,7 @@ class XbtsFiat extends React.Component {
                 "utf-8"
             ), // memo
             null, // propose set to false
-            assetId //asset.get("id") // Pay fee with XBTS FIAT or 1.3.0 BTS
+            assetId //asset.get("id") // Pay fee with XBTS FIAT or 1.3.0 DFS
         ).then(() => {
             TransactionConfirmStore.unlisten(this.onTrxIncluded);
             TransactionConfirmStore.listen(this.onTrxIncluded);

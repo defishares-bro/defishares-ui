@@ -136,8 +136,8 @@ var Utils = {
         let baseID = base.toJS ? base.get("id") : base.id;
         let basePrecision = base.toJS ? base.get("precision") : base.precision;
         let fixedPrecisionAssets = {
-            "1.3.113": 5, // bitCNY
-            "1.3.121": 5 // bitUSD
+            "1.3.113": 5, // CNY
+            "1.3.121": 5 // USD
         };
         if (quoteID === "1.3.0") {
             priceText = this.format_number(price, quotePrecision);
@@ -476,9 +476,12 @@ var Utils = {
             }
         }
 
-        let namespace = isBitAsset ? "bit" : toReplace[i];
+        let namespace = isBitAsset ? null : toReplace[i];
         let prefix = null;
-        if (!getAssetHideNamespaces().find(a => a.indexOf(namespace) !== -1)) {
+        if (
+            namespace &&
+            !getAssetHideNamespaces().find(a => a.indexOf(namespace) !== -1)
+        ) {
             prefix = namespace ? namespace.toLowerCase() : null;
         }
 

@@ -1,4 +1,9 @@
 import {Apis} from "bitsharesjs-ws";
+
+const DEFISHARES_CHAIN_ID =
+    "300a25f6095a6a2e67c5c4f0e7c9a8ea602ba72c1ccc425ee436e1d5690ced2d";
+const BITSHARES_TESTNET_CHAIN_ID =
+    "39f5e2ede1f8bc1a3a54a7914414e3779e33193f1f5693510e73cb7a87617447";
 /** This file centralized customization and branding efforts throughout the whole wallet and is meant to facilitate
  *  the process.
  *
@@ -10,13 +15,14 @@ import {Apis} from "bitsharesjs-ws";
  * @private
  */
 function _isTestnet() {
-    const testnet =
-        "39f5e2ede1f8bc1a3a54a7914414e3779e33193f1f5693510e73cb7a87617447"; // just for the record
-    const mainnet =
-        "4018d7844c78f6a6c41c6a552b898022310fc5dec06da467ee7905a8dad512c8";
-
-    // treat every other chain as testnet
-    return Apis.instance().chain_id !== mainnet;
+    const chainId = Apis.instance().chain_id;
+    if (!chainId) {
+        return false;
+    }
+    if (chainId === DEFISHARES_CHAIN_ID) {
+        return false;
+    }
+    return chainId === BITSHARES_TESTNET_CHAIN_ID;
 }
 
 /**
@@ -24,7 +30,7 @@ function _isTestnet() {
  * @returns {string}
  */
 export function getWalletName() {
-    return "BitShares";
+    return "DefiShares";
 }
 
 /**
@@ -32,7 +38,7 @@ export function getWalletName() {
  * @returns {string}
  */
 export function getWalletURL() {
-    return "https://wallet.bitshares.org";
+    return "http://127.0.0.1:8080";
 }
 
 /**
@@ -42,18 +48,17 @@ export function getWalletURL() {
  */
 export function getFaucet() {
     return {
-        url: "https://faucet.bitshares.eu/onboarding", // 2017-12-infrastructure worker proposal
-        show: true,
+        url: "",
+        show: false,
         editable: false,
-        referrer: "onboarding.bitshares.foundation"
+        referrer: ""
     };
 }
 
 export function getTestFaucet() {
-    // fixme should be solved by introducing _isTestnet into getFaucet and fixing the mess in the Settings when fetching faucet address
     return {
-        url: "https://faucet.testnet.bitshares.eu", // operated as a contribution by BitShares EU
-        show: true,
+        url: "",
+        show: false,
         editable: false
     };
 }
@@ -62,7 +67,10 @@ export function getTestFaucet() {
  * Logo that is used throughout the UI
  * @returns {*}
  */
-export function getLogo() {
+export function getLogo(theme = "lightTheme") {
+    if (theme === "darkTheme" || theme === "midnightTheme") {
+        return require("assets/logo-ico-dark.png").default;
+    }
     return require("assets/logo-ico-blue.png").default;
 }
 
@@ -93,14 +101,14 @@ export function getUnits() {
     if (_isTestnet()) {
         return ["TEST"];
     }
-    return ["BTS", "USD", "CNY", "BTC", "EUR", "GBP"];
+    return ["DFS", "GOLD"];
 }
 
 export function getDefaultMarket() {
     if (_isTestnet()) {
         return "USD_TEST";
     }
-    return "BTS_CNY";
+    return "GOLD_DFS";
 }
 
 /**
@@ -112,7 +120,7 @@ export function getMyMarketsBases() {
     if (_isTestnet()) {
         return ["TEST"];
     }
-    return ["BTS", "BTC", "CNY", "USD", "USDT", "ETH"];
+    return ["DFS", "GOLD"];
 }
 
 /**
@@ -124,179 +132,7 @@ export function getMyMarketsQuotes() {
     if (_isTestnet()) {
         return ["TEST"];
     }
-    let tokens = {
-        nativeTokens: [
-            "BTC",
-            "BTC1.0",
-            "BTS",
-            "CNY",
-            "CNY1.0",
-            "EUR",
-            "EUR1.0",
-            "GOLD",
-            "GOLD1.0",
-            "RUBLE",
-            "RUB1.0",
-            "SILVER",
-            "SILVER1.0",
-            "USD",
-            "USD1.0"
-        ],
-        gdexTokens: [
-            "GDEX.BTC",
-            "GDEX.BTO",
-            "GDEX.EOS",
-            "GDEX.ETH",
-            "GDEX.BKBT",
-            "GDEX.GXC",
-            "GDEX.SEER",
-            "GDEX.FOTA",
-            "GDEX.JRC",
-            "GDEX.EOSDAC",
-            "GDEX.MTS",
-            "GDEX.GUSD",
-            "GDEX.IQ",
-            "GDEX.NULS",
-            "GDEX.USDT"
-        ],
-        openledgerTokens: [],
-        rudexTokens: [],
-        piratecashTockens: [
-            "PIRATE.PIRATE",
-            "PIRATE.BTC",
-            "PIRATE.LTC",
-            "PIRATE.BCC",
-            "PIRATE.DOGE",
-            "PIRATE.COSA"
-        ],
-        xbtsxTokens: [
-            "XBTSX.STH",
-            "XBTSX.POST",
-            "XBTSX.DOGE",
-            "XBTSX.BTC",
-            "XBTSX.LTC",
-            "XBTSX.DASH",
-            "XBTSX.BTG",
-            "XBTSX.NVC",
-            "XBTSX.42",
-            "XBTSX.NMC",
-            "XBTSX.WAVES",
-            "XBTSX.ETH",
-            "XBTSX.ONION",
-            "XBTSX.EGC",
-            "XBTSX.BCH",
-            "XBTSX.MDL",
-            "XBTSX.SKY",
-            "XBTSX.SLB",
-            "XBTSX.GRS",
-            "XBTSX.XSM",
-            "XBTSX.XBB",
-            "XBTSX.EXR",
-            "XBTSX.BCCX",
-            "XBTSX.GUAP",
-            "XBTSX.AXAI",
-            "XBTSX.TUSD",
-            "XBTSX.USDT",
-            "XBTSX.RVN",
-            "XBTSX.TRD",
-            "XBTSX.SCH",
-            "XBTSX.USDN",
-            "XBTSX.FIL",
-            "XBTSX.EOS",
-            "XBTSX.RUB",
-            "XBTSX.USD",
-            "XBTSX.EUR",
-            "XBTSX.VTC",
-            "XBTSX.USDC",
-            "XBTSX.BAT",
-            "XBTSX.PING",
-            "XBTSX.ATRI",
-            "XBTSX.BNB",
-            "XBTSX.BUSD",
-            "XBTSX.TRX",
-            "XBTSX.HT",
-            "XBTSX.XRP",
-            "XBTSX.SHU",
-            "XBTSX.UNI",
-            "XBTSX.HIVE",
-            "XBTSX.EMC",
-            "XBTSX.NESS",
-            "XBTSX.PPC",
-            "XBTSX.SHIB",
-            "XBTSX.HBD",
-            "XBTSX.PIVX",
-            "XBTSX.AVAX",
-            "XBTSX.RTM",
-            "XBTSX.XAUT",
-            "XBTSX.TUSC",
-            "XBTSX.MATIC",
-            "XBTSX.HVQ",
-            "XBTSX.TCG",
-            "XBTSX.NCH",
-            "XBTSX.LUNR",
-            "XBTSX.LUNAREUM"
-        ],
-        honestTokens: [
-            "HONEST",
-            "HONEST.MONEY",
-            "HONEST.AGORISM",
-            "HONEST.DEV",
-            "HONEST.CNY",
-            "HONEST.USD",
-            "HONEST.BTC",
-            "HONEST.XAU",
-            "HONEST.XAG",
-            "HONEST.ETH",
-            "HONEST.XRP",
-            "HONEST.XRP1",
-            "HONEST.ETH1",
-            "HONEST.USDSHORT",
-            "HONEST.BTCSHORT",
-            "HONEST.ADA",
-            "HONEST.DOT",
-            "HONEST.LTC",
-            "HONEST.SOL",
-            "HONEST.XMR",
-            "HONEST.ATOM",
-            "HONEST.XLM",
-            "HONEST.ALGO",
-            "HONEST.FIL",
-            "HONEST.EOS",
-            "HONEST.RUB",
-            "HONEST.EUR",
-            "HONEST.GBP",
-            "HONEST.JPY",
-            "HONEST.KRW",
-            "HONEST.ADASHORT",
-            "HONEST.DOTSHORT",
-            "HONEST.LTCSHORT",
-            "HONEST.SOLSHORT",
-            "HONEST.XMRSHORT",
-            "HONEST.ATOMSHORT",
-            "HONEST.XLMSHORT",
-            "HONEST.ALGOSHORT",
-            "HONEST.FILSHORT",
-            "HONEST.EOSSHORT",
-            "HONEST.RUBSHORT",
-            "HONEST.EURSHORT",
-            "HONEST.GBPSHORT",
-            "HONEST.JPYSHORT",
-            "HONEST.KRWSHORT",
-            "HONEST.XRPSHORT",
-            "HONEST.ETHSHORT",
-            "HONEST.XAUSHORT",
-            "HONEST.XAGSHORT",
-            "HONEST.CNYSHORT"
-        ],
-        ioxbankTokens: ["IOB.XRP", "IOB.XLM"],
-        otherTokens: ["CVCOIN", "HERO", "OCT", "HERTZ", "YOYOW"]
-    };
-
-    let allTokens = [];
-    for (let type in tokens) {
-        allTokens = allTokens.concat(tokens[type]);
-    }
-    return allTokens;
+    return ["DFS", "GOLD"];
 }
 
 /**
@@ -309,119 +145,8 @@ export function getFeaturedMarkets(quotes = []) {
         return [["USD", "TEST"]];
     }
     return [
-        ["USD", "BTS"],
-        ["USD", "GOLD"],
-        ["USD", "HERO"],
-        ["USD", "GDEX.BTC"],
-        ["USD", "GDEX.ETH"],
-        ["USD", "GDEX.EOS"],
-        ["USD", "GDEX.BTO"],
-        ["USD", "HONEST.BTC"],
-        ["USD", "HONEST.USD"],
-        ["USD", "HONEST.BTCSHORT"],
-        ["USD", "HONEST.USDSHORT"],
-        ["USD", "HERTZ"],
-        ["USD", "URTHR"],
-        ["USD", "SKULD"],
-        ["USD", "VERTHANDI"],
-        ["CNY", "BTS"],
-        ["CNY", "USD"],
-        ["CNY", "YOYOW"],
-        ["CNY", "OCT"],
-        ["CNY", "GDEX.BTC"],
-        ["CNY", "GDEX.ETH"],
-        ["CNY", "GDEX.EOS"],
-        ["CNY", "GDEX.BTO"],
-        ["CNY", "GDEX.SEER"],
-        ["CNY", "GDEX.BKBT"],
-        ["CNY", "GDEX.USDT"],
-        ["CNY", "GDEX.GXC"],
-        ["CNY", "HONEST.BTC"],
-        ["CNY", "HONEST.USD"],
-        ["CNY", "HONEST.BTCSHORT"],
-        ["CNY", "HONEST.USDSHORT"],
-        ["CNY", "HONEST.CNY"],
-        ["CNY", "HERTZ"],
-        ["CNY", "URTHR"],
-        ["CNY", "SKULD"],
-        ["CNY", "VERTHANDI"],
-        ["BTS", "RUBLE"],
-        ["BTS", "HERO"],
-        ["BTS", "OCT"],
-        ["BTS", "SILVER"],
-        ["BTS", "GOLD"],
-        ["BTS", "GDEX.BTC"],
-        ["BTS", "GDEX.ETH"],
-        ["BTS", "GDEX.EOS"],
-        ["BTS", "GDEX.BTO"],
-        ["BTS", "GDEX.USDT"],
-        ["BTS", "XBTSX.BTC"],
-        ["BTS", "XBTSX.ETH"],
-        ["BTS", "XBTSX.EUR"],
-        ["BTS", "XBTSX.RUB"],
-        ["BTS", "XBTSX.STH"],
-        ["BTS", "XBTSX.TUSD"],
-        ["BTS", "XBTSX.WAVES"],
-        ["BTS", "XBTSX.USD"],
-        ["BTS", "XBTSX.USDC"],
-        ["BTS", "XBTSX.USDN"],
-        ["BTS", "XBTSX.USDT"],
-        ["BTS", "HONEST"],
-        ["BTS", "HONEST.MONEY"],
-        ["BTS", "HONEST.AGORISM"],
-        ["BTS", "HONEST.DEV"],
-        ["BTS", "HONEST.CNY"],
-        ["BTS", "HONEST.USD"],
-        ["BTS", "HONEST.BTC"],
-        ["BTS", "HONEST.XAU"],
-        ["BTS", "HONEST.XAG"],
-        ["BTS", "HONEST.ETH"],
-        ["BTS", "HONEST.XRP"],
-        ["BTS", "HONEST.XRP1"],
-        ["BTS", "HONEST.ETH1"],
-        ["BTS", "HONEST.USDSHORT"],
-        ["BTS", "HONEST.BTCSHORT"],
-        ["BTS", "HONEST.ADA"],
-        ["BTS", "HONEST.DOT"],
-        ["BTS", "HONEST.LTC"],
-        ["BTS", "HONEST.SOL"],
-        ["BTS", "HONEST.XMR"],
-        ["BTS", "HONEST.ATOM"],
-        ["BTS", "HONEST.XLM"],
-        ["BTS", "HONEST.ALGO"],
-        ["BTS", "HONEST.FIL"],
-        ["BTS", "HONEST.EOS"],
-        ["BTS", "HONEST.RUB"],
-        ["BTS", "HONEST.EUR"],
-        ["BTS", "HONEST.GBP"],
-        ["BTS", "HONEST.JPY"],
-        ["BTS", "HONEST.KRW"],
-        ["BTS", "HONEST.ADASHORT"],
-        ["BTS", "HONEST.DOTSHORT"],
-        ["BTS", "HONEST.LTCSHORT"],
-        ["BTS", "HONEST.SOLSHORT"],
-        ["BTS", "HONEST.XMRSHORT"],
-        ["BTS", "HONEST.ATOMSHORT"],
-        ["BTS", "HONEST.XLMSHORT"],
-        ["BTS", "HONEST.ALGOSHORT"],
-        ["BTS", "HONEST.FILSHORT"],
-        ["BTS", "HONEST.EOSSHORT"],
-        ["BTS", "HONEST.RUBSHORT"],
-        ["BTS", "HONEST.EURSHORT"],
-        ["BTS", "HONEST.GBPSHORT"],
-        ["BTS", "HONEST.JPYSHORT"],
-        ["BTS", "HONEST.KRWSHORT"],
-        ["BTS", "HONEST.XRPSHORT"],
-        ["BTS", "HONEST.ETHSHORT"],
-        ["BTS", "HONEST.XAUSHORT"],
-        ["BTS", "HONEST.XAGSHORT"],
-        ["BTS", "HONEST.CNYSHORT"],
-        ["BTS", "IOB.XRP"],
-        ["BTS", "IOB.XLM"],
-        ["BTS", "HERTZ"],
-        ["BTS", "URTHR"],
-        ["BTS", "SKULD"],
-        ["BTS", "VERTHANDI"]
+        ["GOLD", "DFS"],
+        ["DFS", "GOLD"]
     ].filter(a => {
         if (!quotes.length) return true;
         return quotes.indexOf(a[0]) !== -1;
@@ -437,7 +162,7 @@ export function getAssetNamespaces() {
     if (_isTestnet()) {
         return [];
     }
-    return ["XBTSX.", "GDEX.", "HONEST.", "IOB.", "PIRATE."];
+    return [];
 }
 
 /**
@@ -455,18 +180,7 @@ export function getAssetHideNamespaces() {
  * @returns {boolean}
  */
 export function allowedGateway(gateway) {
-    const allowedGateways = [
-        "TRADE",
-        "OPEN", // keep to display the warning icon, permanently disabled in gateways.js
-        "RUDEX", // keep to display the warning icon, permanently disabled in gateways.js
-        "GDEX",
-        "PIRATE",
-        "XBTSX",
-        "IOB",
-        "CITADEL", // keep to display the warning icon, permanently disabled in gateways.js
-        "BRIDGE", // keep to display the warning icon, permanently disabled in gateways.js
-        "SPARKDEX" // keep to display the warning icon, permanently disabled in gateways.js
-    ];
+    const allowedGateways = [];
     if (!gateway) {
         // answers the question: are any allowed?
         return allowedGateways.length > 0;
@@ -484,20 +198,14 @@ export function getAllowedLogins() {
 }
 
 export function getConfigurationAsset() {
-    let assetSymbol = null;
-    if (_isTestnet()) {
-        assetSymbol = "NOTIFICATIONS";
-    } else {
-        assetSymbol = "TEST";
-    }
     // explanation will be parsed out of the asset description (via split)
     return {
-        symbol: assetSymbol,
+        symbol: null,
         explanation:
-            "This asset is used for decentralized configuration of the BitShares UI placed under bitshares.org."
+            "This asset is used for decentralized configuration of the DefiShares UI."
     };
 }
 
 export function getHiveNewsTag() {
-    return "bitshares";
+    return "defishares";
 }

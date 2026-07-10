@@ -34,7 +34,6 @@ import MenuItemType from "./MenuItemType";
 import MenuDataStructure from "./MenuDataStructure";
 
 import {getDefaultMarket, getLogo} from "branding";
-var logo = getLogo();
 
 // const FlagImage = ({flag, width = 20, height = 20}) => {
 //     return <img height={height} width={width} src={`${__BASE_URL__}language-dropdown/${flag.toUpperCase()}.png`} />;
@@ -349,11 +348,7 @@ class Header extends React.Component {
             ? false
             : AccountStore.isMyAccount(a) ||
               (passwordLogin && currentAccount === passwordAccount);
-        const enableDepositWithdraw =
-            !!a &&
-            Apis.instance() &&
-            Apis.instance().chain_id &&
-            Apis.instance().chain_id.substr(0, 8) === "4018d784";
+        const enableDepositWithdraw = false;
 
         if (starredAccounts.size) {
             for (let i = tradingAccounts.length - 1; i >= 0; i--) {
@@ -386,6 +381,7 @@ class Header extends React.Component {
                 </div>
             ) : null;
 
+        const logo = getLogo(this.props.settings.get("themes"));
         let dashboard = (
             <a
                 className={cnames("logo", {
@@ -396,7 +392,9 @@ class Header extends React.Component {
                 })}
                 onClick={this._onNavigate.bind(this, "/")}
             >
-                <img style={{margin: 0, height: 40}} src={logo} />
+                <span className="app-logo-frame header-logo-frame">
+                    <img src={logo} />
+                </span>
             </a>
         );
 
@@ -742,44 +740,41 @@ class Header extends React.Component {
     }
 }
 
-Header = connect(
-    Header,
-    {
-        listenTo() {
-            return [
-                AccountStore,
-                WalletUnlockStore,
-                WalletManagerStore,
-                SettingsStore,
-                GatewayStore
-            ];
-        },
-        getProps() {
-            const chainID = Apis.instance().chain_id;
-            return {
-                backedCoins: GatewayStore.getState().backedCoins,
-                myActiveAccounts: AccountStore.getState().myActiveAccounts,
-                currentAccount:
-                    AccountStore.getState().currentAccount ||
-                    AccountStore.getState().passwordAccount,
-                passwordAccount: AccountStore.getState().passwordAccount,
-                locked: WalletUnlockStore.getState().locked,
-                current_wallet: WalletManagerStore.getState().current_wallet,
-                lastMarket: SettingsStore.getState().viewSettings.get(
-                    `lastMarket${chainID ? "_" + chainID.substr(0, 8) : ""}`
-                ),
-                starredAccounts: AccountStore.getState().starredAccounts,
-                passwordLogin: SettingsStore.getState().settings.get(
-                    "passwordLogin"
-                ),
-                currentLocale: SettingsStore.getState().settings.get("locale"),
-                hiddenAssets: SettingsStore.getState().hiddenAssets,
-                settings: SettingsStore.getState().settings,
-                locales: SettingsStore.getState().defaults.locale,
-                contacts: AccountStore.getState().accountContacts
-            };
-        }
+Header = connect(Header, {
+    listenTo() {
+        return [
+            AccountStore,
+            WalletUnlockStore,
+            WalletManagerStore,
+            SettingsStore,
+            GatewayStore
+        ];
+    },
+    getProps() {
+        const chainID = Apis.instance().chain_id;
+        return {
+            backedCoins: GatewayStore.getState().backedCoins,
+            myActiveAccounts: AccountStore.getState().myActiveAccounts,
+            currentAccount:
+                AccountStore.getState().currentAccount ||
+                AccountStore.getState().passwordAccount,
+            passwordAccount: AccountStore.getState().passwordAccount,
+            locked: WalletUnlockStore.getState().locked,
+            current_wallet: WalletManagerStore.getState().current_wallet,
+            lastMarket: SettingsStore.getState().viewSettings.get(
+                `lastMarket${chainID ? "_" + chainID.substr(0, 8) : ""}`
+            ),
+            starredAccounts: AccountStore.getState().starredAccounts,
+            passwordLogin: SettingsStore.getState().settings.get(
+                "passwordLogin"
+            ),
+            currentLocale: SettingsStore.getState().settings.get("locale"),
+            hiddenAssets: SettingsStore.getState().hiddenAssets,
+            settings: SettingsStore.getState().settings,
+            locales: SettingsStore.getState().defaults.locale,
+            contacts: AccountStore.getState().accountContacts
+        };
     }
-);
+});
 
 export default withRouter(Header);

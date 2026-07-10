@@ -24,6 +24,17 @@ let GRAPHENE_MAX_SHARE_SUPPLY = new big(
     assetConstants.GRAPHENE_MAX_SHARE_SUPPLY
 );
 
+const HIDDEN_ISSUER_PERMISSION_KEYS = new Set([
+    "disable_force_settle",
+    "global_settle",
+    "lock_max_supply",
+    "disable_new_supply",
+    "disable_mcr_update",
+    "disable_mssr_update",
+    "disable_bsrm_update",
+    "disable_collateral_bidding"
+]);
+
 class BitAssetOptions extends React.Component {
     static propTypes = {
         backingAsset: ChainTypes.ChainAsset.isRequired,
@@ -136,48 +147,6 @@ class BitAssetOptions extends React.Component {
                     />
                 </label>
 
-                <label>
-                    <Translate content="account.user_issued_assets.force_settlement_delay_sec" />
-                    <input
-                        type="number"
-                        value={bitasset_opts.force_settlement_delay_sec / 60}
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "force_settlement_delay_sec"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.force_settlement_offset_percent" />
-                    <input
-                        type="number"
-                        value={
-                            bitasset_opts.force_settlement_offset_percent /
-                            assetConstants.GRAPHENE_1_PERCENT
-                        }
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "force_settlement_offset_percent"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.maximum_force_settlement_volume" />
-                    <input
-                        type="number"
-                        value={
-                            bitasset_opts.maximum_force_settlement_volume /
-                            assetConstants.GRAPHENE_1_PERCENT
-                        }
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "maximum_force_settlement_volume"
-                        )}
-                    />
-                </label>
-
                 <div className="grid-block no-margin small-12">
                     <AssetSelector
                         label="account.user_issued_assets.backing"
@@ -282,6 +251,11 @@ class AccountAssetCreate extends React.Component {
             "all",
             state.isBitAsset
         );
+
+        HIDDEN_ISSUER_PERMISSION_KEYS.forEach(key => {
+            flagBooleans[key] = false;
+            permissionBooleans[key] = false;
+        });
 
         return {
             flagBooleans,
@@ -769,7 +743,11 @@ class AccountAssetCreate extends React.Component {
             );
         };
         for (let key in permissionBooleans) {
-            if (permissionBooleans[key] && key !== "charge_market_fee") {
+            if (
+                permissionBooleans[key] &&
+                key !== "charge_market_fee" &&
+                !HIDDEN_ISSUER_PERMISSION_KEYS.has(key)
+            ) {
                 flags.push(
                     getFlag(
                         key,
@@ -795,6 +773,7 @@ class AccountAssetCreate extends React.Component {
         // Loop over permissions
         let permissions = [];
         for (let key in permissionBooleans) {
+            if (HIDDEN_ISSUER_PERMISSION_KEYS.has(key)) continue;
             permissions.push(
                 <table key={"table_" + key} className="table">
                     <tbody>

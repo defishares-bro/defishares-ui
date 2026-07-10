@@ -73,7 +73,7 @@ module.exports = function(env) {
         new HtmlWebpackPlugin({
             template: "!!handlebars-loader!app/assets/index.hbs",
             templateParameters: {
-                title: "BitShares " + __VERSION__,
+                title: "DefiShares " + __VERSION__,
                 INCLUDE_BASE: !!env.prod && !env.hash,
                 PRODUCTION: !!env.prod,
                 ELECTRON: !!env.electron
@@ -88,7 +88,7 @@ module.exports = function(env) {
             __UI_API__: JSON.stringify(env.apiUrl),
             __TESTNET__: !!env.testnet,
             __DEPRECATED__: !!env.deprecated,
-            DEFAULT_SYMBOL: "BTS",
+            DEFAULT_SYMBOL: "DFS",
             __GIT_BRANCH__: JSON.stringify(git.branch()),
             __PERFORMANCE_DEVTOOL__: !!env.perf_dev
         }),

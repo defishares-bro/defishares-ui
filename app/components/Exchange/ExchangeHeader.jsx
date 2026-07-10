@@ -7,10 +7,7 @@ import SettingsActions from "actions/SettingsActions";
 import PriceStatWithLabel from "./PriceStatWithLabel";
 import Translate from "react-translate-component";
 import counterpart from "counterpart";
-import {ChainStore} from "bitsharesjs";
-import ExchangeHeaderCollateral from "./ExchangeHeaderCollateral";
 import {Icon as AntIcon} from "bitshares-ui-style-guide";
-import {Asset, Price} from "common/MarketClasses";
 
 export default class ExchangeHeader extends React.Component {
     constructor(props) {
@@ -70,12 +67,12 @@ export default class ExchangeHeader extends React.Component {
             starredMarkets,
             hasPrediction,
             feedPrice,
+            referencePrice,
             showCallLimit,
             lowestCallPrice,
             marketReady,
             latestPrice,
-            marketStats,
-            account
+            marketStats
         } = this.props;
 
         const baseSymbol = baseAsset.get("symbol");
@@ -94,109 +91,20 @@ export default class ExchangeHeader extends React.Component {
             parseFloat(dayChange) === 0 || isNaN(dayChange)
                 ? ""
                 : parseFloat(dayChange) < 0
-                    ? "negative"
-                    : "positive";
+                ? "negative"
+                : "positive";
         const volumeBase = marketStats.get("volumeBase");
         const volumeQuote = marketStats.get("volumeQuote");
         const dayChangeWithSign = isNaN(dayChange)
             ? undefined
             : dayChange > 0
-                ? "+" + dayChange
-                : dayChange;
+            ? "+" + dayChange
+            : dayChange;
 
         const volume24h = this.state.volumeShowQuote ? volumeQuote : volumeBase;
         const volume24hAsset = this.state.volumeShowQuote
             ? quoteAsset
             : baseAsset;
-
-        let showCollateralRatio = false;
-
-        const quoteId = quoteAsset.get("id");
-        const baseId = baseAsset.get("id");
-
-        const lookForBitAsset =
-            quoteId === "1.3.0" ? baseId : baseId === "1.3.0" ? quoteId : null;
-        const possibleBitAsset = lookForBitAsset
-            ? ChainStore.getAsset(lookForBitAsset)
-            : null;
-        const isBitAsset = possibleBitAsset
-            ? !!possibleBitAsset.get("bitasset")
-            : false;
-        let collOrderObject = "";
-        let settlePrice = null;
-        let settlePriceTitle = "exchange.settle";
-        let settlePriceTooltip = "tooltip.settle_price";
-
-        if (isBitAsset) {
-            if (account.toJS && account.has("call_orders")) {
-                const call_orders = account.get("call_orders").toJS();
-
-                for (let i = 0; i < call_orders.length; i++) {
-                    let callID = call_orders[i];
-
-                    let position = ChainStore.getObject(callID);
-                    let debtAsset = position.getIn([
-                        "call_price",
-                        "quote",
-                        "asset_id"
-                    ]);
-
-                    if (debtAsset === lookForBitAsset) {
-                        collOrderObject = callID;
-                        showCollateralRatio = true;
-                        break;
-                    }
-                }
-            }
-
-            /* Settlment Offset */
-            let settleAsset =
-                baseId == "1.3.0"
-                    ? quoteAsset
-                    : quoteId == "1.3.0"
-                        ? baseAsset
-                        : quoteAsset;
-
-            // globally settled
-            if (possibleBitAsset.get("bitasset").get("settlement_fund") > 0) {
-                settlePriceTitle = "exchange.global_settle";
-                settlePriceTooltip = "tooltip.global_settle_price";
-                // if globally settled feed_price == settlement_price
-                settlePrice = possibleBitAsset
-                    .get("bitasset")
-                    .get("settlement_price")
-                    .toJS();
-                // add precision
-                if (settlePrice.base.asset_id == baseAsset.get("id")) {
-                    settlePrice.base.precision = baseAsset.get("precision");
-                    settlePrice.quote.precision = quoteAsset.get("precision");
-                } else {
-                    settlePrice.quote.precision = baseAsset.get("precision");
-                    settlePrice.base.precision = quoteAsset.get("precision");
-                }
-                settlePrice = new Price({
-                    quote: new Asset({
-                        asset_id: settlePrice.quote.asset_id,
-                        precision: settlePrice.quote.precision,
-                        amount: settlePrice.quote.amount
-                    }),
-                    base: new Asset({
-                        asset_id: settlePrice.base.asset_id,
-                        precision: settlePrice.base.precision,
-                        amount: settlePrice.base.amount
-                    })
-                }).toReal();
-                settlePrice = baseId == "1.3.0" ? 1 / settlePrice : settlePrice;
-            } else if (settleAsset && feedPrice) {
-                let offset_percent = settleAsset
-                    .getIn(["bitasset", "options"])
-                    .toJS().force_settlement_offset_percent;
-                settlePrice =
-                    baseId == "1.3.0"
-                        ? feedPrice.toReal() / (1 + offset_percent / 10000)
-                        : feedPrice.toReal() * (1 + offset_percent / 10000);
-            }
-        }
 
         const translator = require("counterpart");
 
@@ -276,8 +184,7 @@ export default class ExchangeHeader extends React.Component {
                                 </div>
                             ) : (
                                 <a className="market-symbol">
-                                    <span
-                                    >{`${quoteSymbol} : ${baseSymbol}`}</span>
+                                    <span>{`${quoteSymbol} : ${baseSymbol}`}</span>
                                 </a>
                             )}
                             <div
@@ -398,26 +305,22 @@ export default class ExchangeHeader extends React.Component {
                                         content="exchange.feed_price"
                                     />
                                 ) : null}
-                                {!hasPrediction && settlePrice ? (
+                                {!hasPrediction &&
+                                !feedPrice &&
+                                referencePrice ? (
                                     <PriceStatWithLabel
                                         ignoreColorChange={true}
                                         toolTip={counterpart.translate(
-                                            settlePriceTooltip
+                                            "tooltip.reference_price"
                                         )}
                                         ready={marketReady}
-                                        className="hide-order-4"
-                                        price={settlePrice}
+                                        className="hide-order-3"
+                                        valueClassName="reference-price-value"
+                                        price={referencePrice}
                                         quote={quoteAsset}
                                         base={baseAsset}
                                         market={marketID}
-                                        content={settlePriceTitle}
-                                    />
-                                ) : null}
-                                {showCollateralRatio ? (
-                                    <ExchangeHeaderCollateral
-                                        object={collOrderObject}
-                                        account={account}
-                                        className="hide-order-1"
+                                        content="exchange.reference_price"
                                     />
                                 ) : null}
                                 {lowestCallPrice && showCallLimit ? (

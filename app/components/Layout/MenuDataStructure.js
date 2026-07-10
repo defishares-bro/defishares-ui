@@ -143,7 +143,6 @@ class MenuDataStructure {
             allItems.settings_mobile,
             allItems.accounts,
             // allItems.news,
-            allItems.borrow,
             allItems.barter,
             allItems.direct_debit,
             allItems.prediction,
@@ -466,13 +465,6 @@ class MenuDataStructure {
                     title: "icons.question_circle"
                 },
                 text: "header.help",
-                inHeaderBehavior: MenuItemType.Dynamic,
-                inDropdownBehavior: MenuItemType.Never
-            }),
-            borrow: state => ({
-                includePattern: "/borrow",
-                icon: "borrow",
-                text: "showcases.borrow.title",
                 inHeaderBehavior: MenuItemType.Dynamic,
                 inDropdownBehavior: MenuItemType.Never
             }),

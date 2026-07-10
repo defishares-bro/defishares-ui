@@ -72,19 +72,6 @@ class ShowcaseGrid extends Component {
                     : "Please login to use this functionality"
             },
             {
-                title: "showcases.borrow.title",
-                target: () => {
-                    if (hasAccount) {
-                        thiz.props.history.push("/borrow");
-                    }
-                },
-                description: "showcases.borrow.description",
-                icon: "borrow",
-                disabled: hasAccount
-                    ? false
-                    : "Please login to use this functionality"
-            },
-            {
                 title: "showcases.direct_debit.title",
                 target: event => {
                     thiz.props.history.push("/direct-debit");

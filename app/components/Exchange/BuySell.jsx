@@ -16,7 +16,6 @@ import assetUtils from "common/asset_utils";
 import {DatePicker} from "antd";
 import moment from "moment";
 import Icon from "../Icon/Icon";
-import SettleModal from "../Modal/SettleModal";
 import {Button, Select, Popover, Tooltip} from "bitshares-ui-style-guide";
 import ReactTooltip from "react-tooltip";
 import AccountStore from "../../stores/AccountStore";
@@ -40,12 +39,8 @@ class BuySell extends React.Component {
     constructor() {
         super();
         this.state = {
-            forceReRender: false,
-            isSettleModalVisible: false
+            forceReRender: false
         };
-
-        this.showSettleModal = this.showSettleModal.bind(this);
-        this.hideSettleModal = this.hideSettleModal.bind(this);
     }
 
     /*
@@ -74,8 +69,6 @@ class BuySell extends React.Component {
         this._forceRender(nextProps, nextState);
 
         return (
-            nextState.isSettleModalVisible !==
-                this.state.isSettleModalVisible ||
             nextProps.amount !== this.props.amount ||
             nextProps.onBorrow !== this.props.onBorrow ||
             nextProps.total !== this.props.total ||
@@ -106,18 +99,6 @@ class BuySell extends React.Component {
     getDatePickerRef = node => {
         this.datePricker = node;
     };
-
-    showSettleModal() {
-        this.setState({
-            isSettleModalVisible: true
-        });
-    }
-
-    hideSettleModal() {
-        this.setState({
-            isSettleModalVisible: false
-        });
-    }
 
     _addBalance(balance) {
         if (this.props.type === "bid") {
@@ -496,10 +477,10 @@ class BuySell extends React.Component {
             isBid && quoteMarketFee
                 ? quoteMarketFee
                 : !isBid && baseMarketFee
-                    ? baseMarketFee
-                    : quoteMarketFee || baseMarketFee
-                        ? emptyCell
-                        : null;
+                ? baseMarketFee
+                : quoteMarketFee || baseMarketFee
+                ? emptyCell
+                : null;
 
         let hasBalance = isBid
             ? balanceAmount.getAmount({real: true}) >= parseFloat(total)
@@ -525,10 +506,10 @@ class BuySell extends React.Component {
         let disabledText = invalidPrice
             ? counterpart.translate("exchange.invalid_price")
             : invalidAmount
-                ? counterpart.translate("exchange.invalid_amount")
-                : noBalance
-                    ? counterpart.translate("exchange.no_balance")
-                    : null;
+            ? counterpart.translate("exchange.invalid_amount")
+            : noBalance
+            ? counterpart.translate("exchange.no_balance")
+            : null;
 
         // Fee asset selection
         if (
@@ -999,10 +980,8 @@ class BuySell extends React.Component {
 
         const otherAsset = isBid ? base : quote;
         const isBitAsset = !!otherAsset.get("bitasset");
-        // check if globally settled
         const isGloballySettled =
             isBitAsset && otherAsset.get("bitasset").get("settlement_fund") > 0;
-
         const currentAccount = AccountStore.getState().currentAccount;
 
         return (
@@ -1038,8 +1017,8 @@ class BuySell extends React.Component {
                                             value: isPredictionMarket
                                                 ? "exchange.short"
                                                 : isBid
-                                                    ? "exchange.buy"
-                                                    : "exchange.sell",
+                                                ? "exchange.buy"
+                                                : "exchange.sell",
                                             arg: "direction"
                                         }
                                     ]}
@@ -1489,24 +1468,6 @@ class BuySell extends React.Component {
                                                 <Translate content="exchange.borrow" />
                                             </Button>
                                         ) : null}
-                                        {isGloballySettled ? (
-                                            <Button
-                                                style={{margin: 5}}
-                                                disabled={
-                                                    !this.props
-                                                        .currentAccount ||
-                                                    this.props.currentAccount.get(
-                                                        "id"
-                                                    ) === "1.2.3"
-                                                }
-                                                onClick={this.showSettleModal}
-                                                data-tip={counterpart.translate(
-                                                    "exchange.settle_globally_settled_tooltip"
-                                                )}
-                                            >
-                                                <Translate content="exchange.settle_globally_settled" />
-                                            </Button>
-                                        ) : null}
                                     </div>
                                 </div>
                             </div>
@@ -1558,17 +1519,6 @@ class BuySell extends React.Component {
                         </div>
                     </form>
                 </div>
-
-                {isGloballySettled &&
-                    !!this.props.currentAccount && (
-                        <SettleModal
-                            visible={this.state.isSettleModalVisible}
-                            hideModal={this.hideSettleModal}
-                            showModal={this.showSettleModal}
-                            asset={otherAsset.get("id")}
-                            account={this.props.currentAccount}
-                        />
-                    )}
             </div>
         );
     }

@@ -1,15 +1,24 @@
-BitShares-UI
-============
+DefiShares UI
+=============
 [中文版](README_zh.md)
 
-This is the reference wallet of BitShares Blockchain which connects to BitShares Blockchain nodes (*bitshares-core*).
+This repository is a DefiShares UI fork based on [bitshares-ui](https://github.com/bitshares/bitshares-ui).
+It is adapted to connect to DefiShares chain nodes (`defishares-core`) instead of the BitShares mainnet by default.
+
+Current defaults in this branch:
+
+- core asset: `DFS`
+- address prefix: `DFS`
+- default websocket node: `ws://127.0.0.1:8090`
+- default market: `GOLD_DFS`
+- gateway deposit/withdraw entry points: disabled for now
 
 This reference wallet is a browser based wallet, which means *your keys are stored locally* in your browser and *never leaves it* while using the wallet. 
 You should *never expose your keys to anyone* as transactions are signed locally before transmitting them to a node.
 
 ## Getting started
 
-Building BitShares-UI browser based reference wallet depends on node version 16 using a non-root user.
+Building DefiShares UI depends on Node.js 16 using a non-root user.
 
 On Ubuntu or macOS, the easiest way to install node is to use [Node Version Manager](https://github.com/creationix/nvm).
 
@@ -48,14 +57,8 @@ will live update as you edit the source files.
 
 ## Testnet
 
-By default bitshares-ui connects to the BitShares mainnet, 
-but it's very easy to switch it to the testnet. 
-To do so, open the UI in a browser, go to Settings, then 
-under Nodes, select the *Testnet* in the dropdown menu. 
-The UI will reload and connect to the testnet.
-
-There is also a ready-made deployment directly connected to testnet
-including account creation available [here](https://test.xbts.io/).
+By default this branch connects to the local DefiShares websocket node at `ws://127.0.0.1:8090`.
+If your node listens on another address or port, open Settings and replace the node entry there.
 
 ![image](https://user-images.githubusercontent.com/33128181/175760811-736c9b21-9122-4160-bd30-465bb755a3a3.png)
 

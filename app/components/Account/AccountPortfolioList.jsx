@@ -27,7 +27,6 @@ import PulseIcon from "../Icon/PulseIcon";
 import utils from "common/utils";
 import SendModal from "../Modal/SendModal";
 import SettingsActions from "actions/SettingsActions";
-import SettleModal from "../Modal/SettleModal";
 import DepositModal from "../Modal/DepositModal";
 import SimpleDepositBlocktradesBridge from "../Dashboard/SimpleDepositBlocktradesBridge";
 import WithdrawModal from "../Modal/WithdrawModalNew";
@@ -46,19 +45,16 @@ class AccountPortfolioList extends React.Component {
 
         this.state = {
             isBridgeModalVisible: false,
-            isSettleModalVisible: false,
             isBorrowModalVisible: false,
             isDepositModalVisible: false,
             isWithdrawModalVisible: false,
             isBurnModalVisible: false,
             isBridgeModalVisibleBefore: false,
-            isSettleModalVisibleBefore: false,
             isBorrowModalVisibleBefore: false,
             isDepositModalVisibleBefore: false,
             isWithdrawModalVisibleBefore: false,
             isBurnModalVisibleBefore: false,
             borrow: null,
-            settleAsset: "1.3.0",
             depositAsset: null,
             withdrawAsset: null,
             bridgeAsset: null,
@@ -75,9 +71,6 @@ class AccountPortfolioList extends React.Component {
             this.sortFunctions[key] = this.sortFunctions[key].bind(this);
         }
         this._checkRefAssignments = this._checkRefAssignments.bind(this);
-
-        this.showSettleModal = this.showSettleModal.bind(this);
-        this.hideSettleModal = this.hideSettleModal.bind(this);
 
         this.showDepositModal = this.showDepositModal.bind(this);
         this.hideDepositModal = this.hideDepositModal.bind(this);
@@ -187,19 +180,6 @@ class AccountPortfolioList extends React.Component {
         });
     }
 
-    showSettleModal() {
-        this.setState({
-            isSettleModalVisible: true,
-            isSettleModalVisibleBefore: true
-        });
-    }
-
-    hideSettleModal() {
-        this.setState({
-            isSettleModalVisible: false
-        });
-    }
-
     showDepositModal() {
         this.setState({
             isDepositModalVisible: true,
@@ -218,9 +198,9 @@ class AccountPortfolioList extends React.Component {
             isBorrowModalVisible: true,
             isBorrowModalVisibleBefore: true,
             borrow: {
-                quoteAsset: quoteAsset,
-                backingAsset: backingAsset,
-                account: account
+                quoteAsset,
+                backingAsset,
+                account
             }
         });
     }
@@ -355,15 +335,6 @@ class AccountPortfolioList extends React.Component {
         });
     }
 
-    _onSettleAsset(id, e) {
-        e.preventDefault();
-        this.setState({
-            settleAsset: id
-        });
-
-        this.showSettleModal();
-    }
-
     _hideAsset(asset, status) {
         SettingsActions.hideAsset(asset, status);
     }
@@ -413,7 +384,7 @@ class AccountPortfolioList extends React.Component {
     }
 
     _renderBuy = (symbol, canBuy, assetName, emptyCell, balance) => {
-        if (symbol === "BTS" && balance <= 1000000) {
+        if (symbol === "DFS" && balance <= 1000000) {
             // Precision of 5, 1 = 10^5
             return (
                 <span>
@@ -789,15 +760,6 @@ class AccountPortfolioList extends React.Component {
             },
             {
                 className: "column-hide-medium",
-                title: <Translate content="account.settle" />,
-                dataIndex: "settle",
-                align: "center",
-                render: item => {
-                    return <span style={{whiteSpace: "nowrap"}}>{item}</span>;
-                }
-            },
-            {
-                className: "column-hide-medium",
                 title: <Translate content="modal.reserve.submit" />,
                 dataIndex: "burn",
                 align: "center",
@@ -1003,7 +965,7 @@ class AccountPortfolioList extends React.Component {
             );
             const canDeposit =
                 (backedCoin && backedCoin.depositAllowed) ||
-                asset.get("symbol") == "BTS";
+                asset.get("symbol") == "DFS";
 
             const canWithdraw =
                 backedCoin &&
@@ -1012,54 +974,6 @@ class AccountPortfolioList extends React.Component {
                 balanceObject.get("balance") != 0;
 
             const canBuy = !!this.props.bridgeCoins.get(symbol);
-
-            /* Asset and Backing Asset Prefixes */
-            let options =
-                asset && asset.getIn(["bitasset", "options"])
-                    ? asset.getIn(["bitasset", "options"]).toJS()
-                    : null;
-            let backingAsset =
-                options && options.short_backing_asset
-                    ? ChainStore.getAsset(options.short_backing_asset)
-                    : null;
-            let {isBitAsset: isAssetBitAsset} = utils.replaceName(asset);
-            let {isBitAsset: isBackingBitAsset} = utils.replaceName(
-                backingAsset
-            );
-            let settlePriceTitle;
-
-            if (isBitAsset) {
-                const globally_settled =
-                    asset.get("bitasset").get("settlement_fund") > 0;
-                const isPrediction = asset.getIn([
-                    "bitasset",
-                    "is_prediction_market"
-                ]);
-                if (globally_settled) {
-                    settlePriceTitle = "tooltip.global_settle";
-                } else if (isPrediction) {
-                    settlePriceTitle = "tooltip.settle_market_prediction";
-                } else {
-                    settlePriceTitle = "tooltip.settle";
-                }
-                settleLink =
-                    isPrediction && !globally_settled ? (
-                        <AntIcon type={"question-circle"} />
-                    ) : (
-                        <a
-                            onClick={this._onSettleAsset.bind(
-                                this,
-                                asset.get("id")
-                            )}
-                        >
-                            <Icon
-                                name="settle"
-                                title="icons.settle"
-                                className="icon-14px"
-                            />
-                        </a>
-                    );
-            }
 
             let preferredAsset = ChainStore.getAsset(preferredUnit);
 
@@ -1124,7 +1038,7 @@ class AccountPortfolioList extends React.Component {
                     isBitAsset && borrowLink ? (
                         <Tooltip
                             title={counterpart.translate("tooltip.borrow", {
-                                asset: isAssetBitAsset ? "bit" + symbol : symbol
+                                asset: symbol
                             })}
                         >
                             {borrowLink}
@@ -1134,9 +1048,7 @@ class AccountPortfolioList extends React.Component {
                             title={counterpart.translate(
                                 "tooltip.borrow_disabled",
                                 {
-                                    asset: isAssetBitAsset
-                                        ? "bit" + symbol
-                                        : symbol
+                                    asset: symbol
                                 }
                             )}
                         >
@@ -1145,26 +1057,7 @@ class AccountPortfolioList extends React.Component {
                     ) : (
                         emptyCell
                     ),
-                settle:
-                    isBitAsset && backingAsset ? (
-                        <Tooltip
-                            placement="bottom"
-                            title={counterpart.translate(settlePriceTitle, {
-                                asset: isAssetBitAsset
-                                    ? "bit" + symbol
-                                    : symbol,
-                                backingAsset: isBackingBitAsset
-                                    ? "bit" + backingAsset.get("symbol")
-                                    : backingAsset.get("symbol"),
-                                settleDelay:
-                                    options.force_settlement_delay_sec / 3600
-                            })}
-                        >
-                            <div className="inline-block">{settleLink}</div>
-                        </Tooltip>
-                    ) : (
-                        emptyCell
-                    ),
+                settle: emptyCell,
                 burn: !isBitAsset ? (
                     <a
                         style={{marginRight: 0}}
@@ -1247,7 +1140,7 @@ class AccountPortfolioList extends React.Component {
                                 .find(
                                     a => a.backingCoin === thisAssetName[1]
                                 ) ||
-                            asset.get("symbol") == "BTS";
+                            asset.get("symbol") == "DFS";
 
                         const canBuy = !!this.props.bridgeCoins.get(
                             asset.get("symbol")
@@ -1440,18 +1333,6 @@ class AccountPortfolioList extends React.Component {
         );
     }
 
-    _renderSettleModal() {
-        return (
-            <SettleModal
-                visible={this.state.isSettleModalVisible}
-                hideModal={this.hideSettleModal}
-                showModal={this.showSettleModal}
-                asset={this.state.settleAsset}
-                account={this.props.account}
-            />
-        );
-    }
-
     render() {
         const currentBridges =
             this.props.bridgeCoins.get(this.state.bridgeAsset) || null;
@@ -1467,9 +1348,9 @@ class AccountPortfolioList extends React.Component {
                 atLeastOneHas.buy = true;
             }
             if (!!_item.deposit && _item.deposit !== "-") {
-                if (_item.key == "BTS" && GatewayStore.anyAllowed()) {
+                if (_item.key == "DFS" && GatewayStore.anyAllowed()) {
                     atLeastOneHas.depositOnlyBTS =
-                        _item.key == "BTS" && !atLeastOneHas.deposit;
+                        _item.key == "DFS" && !atLeastOneHas.deposit;
                     atLeastOneHas.deposit = true;
                 }
             }
@@ -1491,11 +1372,7 @@ class AccountPortfolioList extends React.Component {
                     toggleSortOrder={this.toggleSortOrder}
                 >
                     {this._renderSendModal()}
-                    {(this.state.isSettleModalVisible ||
-                        this.state.isSettleModalVisibleBefore) &&
-                        this._renderSettleModal()}
                     {this._renderBorrowModal()}
-
                     {(this.state.isWithdrawModalVisible ||
                         this.state.isWithdrawModalVisibleBefore) && (
                         <WithdrawModal

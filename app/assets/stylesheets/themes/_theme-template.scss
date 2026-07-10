@@ -1687,6 +1687,9 @@
     .market-stats .stat .value {
         color: $primary-text-color;
     }
+    .market-stats .stressed-stat .value.reference-price-value {
+        color: #e53935;
+    }
     li.stat.input {
         &:hover {
             background-color: lighten($panel-bg-color, 4%);

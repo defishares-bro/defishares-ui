@@ -93,8 +93,8 @@ class SetDefaultFeeAssetModal extends React.Component {
 
     _getColumns() {
         const symbolSorter = (a, b) => {
-            if (a.asset == "BTS" || b.asset == "BTS") {
-                return a.asset == "BTS" ? 1 : -1;
+            if (a.asset == "DFS" || b.asset == "DFS") {
+                return a.asset == "DFS" ? 1 : -1;
             } else if (
                 ["USD", "CNY", "EUR"].includes(a.asset) !==
                 ["USD", "CNY", "EUR"].includes(b.asset)
@@ -235,21 +235,18 @@ SetDefaultFeeAssetModal.defaultProps = {
     show: false
 };
 
-SetDefaultFeeAssetModal = connect(
-    SetDefaultFeeAssetModal,
-    {
-        listenTo() {
-            return [SettingsStore, AccountStore];
-        },
-        getProps(props) {
-            const currentAccount =
-                props.currentAccount ||
-                ChainStore.getAccount(AccountStore.getState().currentAccount);
-            return {
-                settings: SettingsStore.getState().settings,
-                currentAccount
-            };
-        }
+SetDefaultFeeAssetModal = connect(SetDefaultFeeAssetModal, {
+    listenTo() {
+        return [SettingsStore, AccountStore];
+    },
+    getProps(props) {
+        const currentAccount =
+            props.currentAccount ||
+            ChainStore.getAccount(AccountStore.getState().currentAccount);
+        return {
+            settings: SettingsStore.getState().settings,
+            currentAccount
+        };
     }
-);
+});
 export default SetDefaultFeeAssetModal;

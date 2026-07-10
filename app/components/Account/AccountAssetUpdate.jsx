@@ -35,6 +35,17 @@ let GRAPHENE_MAX_SHARE_SUPPLY = new big(
     assetConstants.GRAPHENE_MAX_SHARE_SUPPLY
 );
 
+const HIDDEN_ISSUER_PERMISSION_KEYS = new Set([
+    "disable_force_settle",
+    "global_settle",
+    "lock_max_supply",
+    "disable_new_supply",
+    "disable_mcr_update",
+    "disable_mssr_update",
+    "disable_bsrm_update",
+    "disable_collateral_bidding"
+]);
+
 const disabledBackingAssetChangeCallback = () => {
     Notification.error({
         message: counterpart.translate(
@@ -906,7 +917,11 @@ class AccountAssetUpdate extends React.Component {
         };
 
         for (let key in originalPermissions) {
-            if (originalPermissions[key] && key !== "charge_market_fee") {
+            if (
+                originalPermissions[key] &&
+                key !== "charge_market_fee" &&
+                !HIDDEN_ISSUER_PERMISSION_KEYS.has(key)
+            ) {
                 flags.push(
                     getFlag(
                         key,
@@ -932,6 +947,7 @@ class AccountAssetUpdate extends React.Component {
         // Loop over permissions
         let permissions = [];
         for (let key in originalPermissions) {
+            if (HIDDEN_ISSUER_PERMISSION_KEYS.has(key)) continue;
             if (true || originalPermissions[key]) {
                 permissions.push(
                     <table key={"table_" + key} className="table">

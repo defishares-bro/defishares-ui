@@ -24,7 +24,7 @@
         "create_new": "创建新账户",
         "credit_offer": "借贷管理",
         "deactivate_suspicious_proposals": "对可疑钓鱼提案隐藏 批准按钮 ！ 警告：批准钓鱼提案可能会丢失资金及账户权限！！！",
-        "deposit": "充入BTS",
+        "deposit": "充入DFS",
         "deposit_address": "您的账户名就是您的充值地址",
         "deposit_withdraw": "充币/提币",
         "download_history": "下载历史记录",
@@ -67,7 +67,7 @@
         "in_open": "这是你在所有挂单中的 %(asset)s 资产的数量。",
         "in_open_value": "这是你在所有挂单中的 %(asset)s 资产的估算价值。",
         "intro_text_1": "一个属于你的去中心化平台",
-        "intro_text_2": "<b>DEX</b>完全去中心化，你可以交易比特股的核心代币（BTS）及一系列去信任，价值稳定，由市场喂价的资产如bitUSD, bitCNY, bitBTC, bitGold等等。这些资产<b>零</b>交易对手风险，而且你对资产拥有完全掌控权。",
+        "intro_text_2": "<b>DEX</b>完全去中心化，你可以交易比特股的核心代币（DFS）及一系列去信任，价值稳定，由市场喂价的资产如USD, CNY, BTC, GOLD等等。这些资产<b>零</b>交易对手风险，而且你对资产拥有完全掌控权。",
         "intro_text_3": "<b>DEX</b>允许用户创建发行资产（UIAs），其能与其它UIAs或者去信任资产在本平台上交易。DEX上一位著名的发行商就是<b>OpenLedger</b>，其提供了大量资产如BTC, ETH, STEEM, DASH, LTC, DOGE等等。",
         "intro_text_4": "DEX提供给虚拟资产交易者一种传统与去中心化相结合的独特体验，交易界面易于上手。祝交易愉快！",
         "intro_text_title": "欢迎来到%(wallet_name)s",
@@ -511,7 +511,7 @@
         "ws_status": "全节点连接状态"
     },
     "assets": {
-        "BTS": "BTS是比特股区块链的核心代币."
+        "DFS": "DFS是比特股区块链的核心代币."
     },
     "boolean": {
         "false": "错",
@@ -691,6 +691,7 @@
         "featured": "热门市场",
         "fee": "手续费",
         "feed_price": "喂价",
+        "reference_price": "参考汇率",
         "filter": "筛选...",
         "flip": "浏览",
         "global_settle": "全局清算价格",
@@ -957,7 +958,7 @@
                 "fund": "注资资产手续费池",
                 "fund_text": "任何人都可以用此表单注资%(core)s到手续费池：",
                 "pool_balance": "手续费池余额",
-                "pool_text": "所有网络手续费最终将使用BTS进行支付。手续费池用来承担从%(asset)s转换为%(core)s的费用，以便用户可以使用%(core)s来支付手续费。如果手续费池资金耗尽，手续费将会不再用%(asset)s支付，会默认采用%(core)s来支付。<br/><br/>手续费汇率为%(asset)s转换为%(core)s的价格。",
+                "pool_text": "所有网络手续费最终将使用DFS进行支付。手续费池用来承担从%(asset)s转换为%(core)s的费用，以便用户可以使用%(core)s来支付手续费。如果手续费池资金耗尽，手续费将会不再用%(asset)s支付，会默认采用%(core)s来支付。<br/><br/>手续费汇率为%(asset)s转换为%(core)s的价格。",
                 "select_fee_asset": "选择手续费支付资产",
                 "title": "手续费池",
                 "unclaimed_issuer_income": "资产所有者未申领收入",
@@ -998,8 +999,8 @@
                 "feed_price": "喂价",
                 "global_settlement_price": "全局清算价格",
                 "global_settlement_trigger": "全局清算触发价格",
-                "initial_collateral_ratio": "初始抵押率 (ICR)",
-                "initial_collateral_ratio2": "初始抵押率 (ICR, 由资产所有者设置)",
+                "initial_collateral_ratio": "最低可借贷抵押率(ICR)",
+                "initial_collateral_ratio2": "最低可借贷抵押率(ICR)",
                 "maintenance_collateral_ratio": "维持抵押率 (MCR)",
                 "maintenance_collateral_ratio2": "维持抵押率 (MCR, 由资产所有者设置)",
                 "margin_call_fee_ratio": "追加保证金费用比率 (MCFR)",
@@ -1015,7 +1016,7 @@
                 "core_exchange_rate": "手续费汇率CER ",
                 "empty": "无有效喂价提供者",
                 "feed_price": "喂价",
-                "initial_collateral_ratio": "初始抵押率ICR",
+                "initial_collateral_ratio": "最低可借贷抵押率(ICR)",
                 "maintenance_collateral_ratio": "维持抵押率MCR",
                 "maximum_short_squeeze_ratio": "强平惩罚比率MSSR",
                 "published": "发布时间",
@@ -1177,10 +1178,10 @@
             "create": "创建一个新的预算项目提案",
             "create_text_1": "请填写下表创建新的预算项目。项目将由你当前活跃账户的名义创建，账户必须已取得终身会籍。",
             "create_text_2": "设置参数前请仔细估量，发布后将无法修改。",
-            "daily_pay": "日付工资 (BTS)",
+            "daily_pay": "日付工资 (DFS)",
             "date_text": "开始时间应该至少设置在一周以后，以留有足够的时间让用户股东们发现、评估项目并投票。",
             "name_text": "预算项目的名字应该简短明了，比如'目标：改进账户名体系'",
-            "pay_text": "日付工资设定的是每天你希望收到的酬劳，以 BTS 计价。目前的最佳实践是设定以美元或人民币计价的工资，并承诺销毁由于 BTS 升值导致的溢价部分。只要你的工人预算项目有效，并且拥有足够的赞成票超过'refund回购项目'，你就能每日持续收到工资。",
+            "pay_text": "日付工资设定的是每天你希望收到的酬劳，以 DFS 计价。目前的最佳实践是设定以美元或人民币计价的工资，并承诺销毁由于 DFS 升值导致的溢价部分。只要你的工人预算项目有效，并且拥有足够的赞成票超过'refund回购项目'，你就能每日持续收到工资。",
             "period": "周期",
             "title": "项目名称",
             "url_text": "你应该提供一个网站、GitHub 文档或者 Google 文档来详细描述你的工作目标和资金使用计划。",
@@ -1191,7 +1192,7 @@
     },
     "external_service_provider": {
         "bridge": {
-            "description": "桥接是一种外部服务提供者，其允许你在BitShares区块链中进行资产转换。例如，你可以发送BTC链上的BTC到桥接，其将会转换你的BTC为等价数量的BTS或者另一种BitShares区块链上的网关UIA资产（当然会有手续费）。通常，桥接不会持有你的资产，但是需要信任他们能够发送给你合适的等价目标资产。因为是外部服务提供者，在使用他们的资产与服务时，你需要审慎同意他们的条款与协议。",
+            "description": "桥接是一种外部服务提供者，其允许你在BitShares区块链中进行资产转换。例如，你可以发送BTC链上的BTC到桥接，其将会转换你的BTC为等价数量的DFS或者另一种BitShares区块链上的网关UIA资产（当然会有手续费）。通常，桥接不会持有你的资产，但是需要信任他们能够发送给你合适的等价目标资产。因为是外部服务提供者，在使用他们的资产与服务时，你需要审慎同意他们的条款与协议。",
             "short": "桥接服务",
             "what_is": "什么是桥接服务?"
         },
@@ -1264,8 +1265,8 @@
         "asset_to_withdraw": "提现资产：",
         "asset_unavailable": "%(asset)s 资产的网关暂停服务",
         "assets": {
-            "bit": "bit%(asset)s 是锚定 %(backed)s 价值的金融衍生品。它 100% 去中心化，无需信任第三方中心机构，并由锁定在区块链上智能合约中的抵押物进行价值背书。",
-            "bitcny": "bitCNY 通常可与真实CNY1：1兑换，可以通过例如 Magic Wallet 提供的网关服务进行充值提现。更多信息请访问 https://www.magicw.net/",
+            "bit": "%(asset)s 是锚定 %(backed)s 价值的金融衍生品。它 100% 去中心化，无需信任第三方中心机构，并由锁定在区块链上智能合约中的抵押物进行价值背书。",
+            "bitcny": "CNY 通常可与真实CNY1：1兑换，可以通过例如 Magic Wallet 提供的网关服务进行充值提现。更多信息请访问 https://www.magicw.net/",
             "bridge": "资产 %(asset)s 由真实资产 %(backed)s 1:1 储备背书。可以通过 CryptoBridge 提供的网关服务进行充值提现。",
             "gdex": "资产 %(asset)s 由真实资产 %(backed)s 1:1 储备背书。可以通过 GDEX 提供的网关服务进行充值提现。",
             "iob": "The %(asset)s asset is backed 1:1 by real %(backed)s and can be deposited or withdrawn using the gateway service provided by ioxbank.com.",
@@ -1285,7 +1286,7 @@
             "support_block": "BitSpark 网关服务的充值与提现问题请联系BitSpark："
         },
         "bridge": "桥接服务",
-        "bridge_text": "桥接服务能让你将一种资产转换成另一种资产，比如从 BTC 转换到 BTS。",
+        "bridge_text": "桥接服务能让你将一种资产转换成另一种资产，比如从 BTC 转换到 DFS。",
         "calc": "计算中",
         "choose_deposit": "请选择充值的币种",
         "choose_withdraw": "请选择提现的币种",
@@ -1731,7 +1732,7 @@
             "address_generation_error": "不能生成地址",
             "amount": "充值数量",
             "asset": "资产",
-            "bts_transfer_description": "任何地方接收BTS都非常方便。只要转账BTS到你的账户名就会马上到你的钱包中。你的账户名也包含在QR二维码中.",
+            "bts_transfer_description": "任何地方接收DFS都非常方便。只要转账DFS到你的账户名就会马上到你的钱包中。你的账户名也包含在QR二维码中.",
             "cancel": "取消",
             "close": "关闭",
             "header": "充值到 %(account_name)s",
@@ -2240,7 +2241,7 @@
         "backup_favoritesbtn": "备份市场收藏夹",
         "backup_favoritestext": "将收藏的市场进行备份，以便在更新后进行恢复。",
         "backup_key": "导入私钥",
-        "backup_legacy": "从BTS 0.9.3c 版本客户端导出的JSON钱包文件导入 (.json)",
+        "backup_legacy": "从DFS 0.9.3c 版本客户端导出的JSON钱包文件导入 (.json)",
         "backup_text": "创建钱包备份。",
         "backupcreate_backup": "创建本地钱包备份",
         "backupcreate_brainkey": "创建脑钱包备份",
@@ -2281,7 +2282,7 @@
         "lightTheme": "白色主题",
         "local_wallet": "本地钱包模式",
         "locale": "语言选择",
-        "lookup_text": "查看来自 BTS 1.0 的未领取余额",
+        "lookup_text": "查看来自 DFS 1.0 的未领取余额",
         "low_latency": "低延迟",
         "medium_latency": "中延迟",
         "midnightTheme": "午夜黑",
@@ -2381,7 +2382,7 @@
         "borrow": {
             "borrow_tooltip": "你可以在资产总览中的抵押债仓标签下找到此功能, 或者在交易中心中点击借贷",
             "choose": "选择你想要创建抵押的智能货币",
-            "description": "使用抵押功能从比特股区块链中借贷Bit资产 (比如 bitUSD, bitCNY, 等等).",
+            "description": "使用抵押功能从比特股区块链中借贷Bit资产 (比如 USD, CNY, 等等).",
             "do_it": "让我们开始吧",
             "get_started": "开始",
             "navigate_with_keys": "智能货币SmartCoin的生成原理将在以下步骤中解释。你可以使用方向键浏览。",
@@ -2390,13 +2391,13 @@
             "previous": "前一步",
             "steps_benefits": {
                 "text": "你可以创建一个抵押借款为你期望的智能货币SmartCoin (MPA)来提供流动性，如果要保证智能货币SmartCoin的价值，你必须提供足够价值的抵押物来保证你的抵押率处于安全的位置。另一方面，在公开市场上卖出智能货币SmartCoin将会使你生成杠杆（举例：你卖出做空，最后你需要买回来平仓）。再一方面，智能货币SmartCoin持有者将会从智能货币SmartCoin较少的波动中获利，并且他们可以发起强制清算来获取等价值的抵押物，而无需从市场中购买。",
-                "text_legend": "强制清算：智能货币SmartCoin持有者可以发起强制清算。抵押率最低的债仓可以使用智能货币强制平仓，发起强清的智能货币SmartCoin持有者会以智能货币来获得对应价值的抵押物。剩余的抵押物会返还给债仓持有者。为了防止此功能被滥用，强制清算会延时（24小时）进行。\n强制清算价格：此价格为强制清算成交时的价格。计算方式为：强制清算价格=喂价+喂价*强清补偿参数。强清补偿参数是为了防止强清功能被滥用。所有强制清算都会转换为基础抵押物(例如，bitUSD的基础抵押物为BTS).",
+                "text_legend": "强制清算：智能货币SmartCoin持有者可以发起强制清算。抵押率最低的债仓可以使用智能货币强制平仓，发起强清的智能货币SmartCoin持有者会以智能货币来获得对应价值的抵押物。剩余的抵押物会返还给债仓持有者。为了防止此功能被滥用，强制清算会延时（24小时）进行。\n强制清算价格：此价格为强制清算成交时的价格。计算方式为：强制清算价格=喂价+喂价*强清补偿参数。强清补偿参数是为了防止强清功能被滥用。所有强制清算都会转换为基础抵押物(例如，USD的基础抵押物为DFS).",
                 "title": "益处",
                 "title_within": "益处是什么?"
             },
             "steps_concept": {
                 "text": "比特股区块链的用户都可以通过提供抵押物来抵押借款创建智能货币SmartCoins(MPA)。你只有归还你创建的智能货币才能解锁抵押物，你实际上是从比特股区块链中借出智能货币。",
-                "text_legend": "例如 bitUSD: 以BTS作为抵押物来借出bitUSD",
+                "text_legend": "例如 USD: 以DFS作为抵押物来借出USD",
                 "title": "设想",
                 "title_within": "什么是抵押借款？"
             },
@@ -2516,7 +2517,7 @@
             "title": "定时转账"
         },
         "voting": {
-            "description": "投票决定区块生产者-见证人、理事会成员及工作提案来影响与推动比特股区块链的战略性决策及发展。",
+            "description": "投票决定区块生产者-见证人、理事会成员及工作提案来影响与推动DefiShares区块链的战略性决策及发展。",
             "title": "投票"
         }
     },
@@ -2545,6 +2546,7 @@
         "deposit_tip": "请到 %(asset)s 的外盘钱包进行转账操作以进行充值，转账地址即列在当前页的地址。一旦转账得到确认，您将完成充值。如果此页转账信息中包含备注，您需要在转账时也将备注包括进去。",
         "disconnected": "您没有连接到任何 API 节点，请尝试刷新页面或在设置选项选择一个新的接入点。",
         "feed_price": "这是当前外部喂价",
+        "reference_price": "通过共同资产将交易对两侧喂价换算得到的参考汇率",
         "filter_ops": "根据操作类型筛选交易历史",
         "follow_user": "您正在关注该账户",
         "follow_user_add": "点击关注该账户",
@@ -2651,7 +2653,7 @@
         "claimed": "全部申领",
         "coll_maint": "维持抵押率",
         "coll_of": "抵押物为",
-        "coll_ratio": "初始抵押率",
+        "coll_ratio": "最低可借贷抵押率(ICR)",
         "collateral": "抵押物",
         "collateral_target": "目标抵押率",
         "committee_member_create": "创建理事会成员",
@@ -2919,9 +2921,9 @@
     },
     "voting": {
         "create_ticket": "Lock 1 {asset}",
-        "description": "比特股区块链允许BTS token持有者投票决定区块生产者(见证人), 理事会成员(区块链管理者), 工作提案(任务赏金及BSIPs/Polls战略决策)。",
+        "description": "DefiShares区块链允许DFS token持有者投票决定区块生产者(见证人), 理事会成员(区块链管理者), 工作提案(任务赏金及BSIPs/Polls战略决策)。",
         "increase_voting_power": "Create Lock",
-        "ticket_explanation": "Obtain voting power by locking away the core token BTS.",
+        "ticket_explanation": "锁定核心代币DFS以获得投票权。",
         "title": "投票"
     },
     "walkthrough": {
@@ -2979,7 +2981,7 @@
         "brainkey_w1": "警告: 将密钥打印出来，或记录在纸上妥善保存。",
         "brainkey_w2": "任何人获得了你的脑钱包密钥信息将",
         "brainkey_w3": "可以获得钱包中资金的使用权限。",
-        "bts_09_export": "BTS 0.9.3c 私钥导出文件 (.json)",
+        "bts_09_export": "DFS 0.9.3c 私钥导出文件 (.json)",
         "cancel": "取消",
         "change": "切换到钱包 %(name)s",
         "change_backup": "你已经修改了密码，强烈建议你创建一个新的备份文件。",
@@ -3025,12 +3027,12 @@
         "generated": "生成的密码",
         "go_get_started": "新手指南",
         "has_wallet": "当你创建第一个账户时，一个钱包也同时被创建，并保存在你的浏览器中。这个钱包使用提供的密码加密，其中包含账户的私钥。在创建完成后，请记得备份钱包！",
-        "import_20_notice1": "请先导入你的BTS 2.0+ 钱包备份文件",
+        "import_20_notice1": "请先导入你的DFS 2.0+ 钱包备份文件",
         "import_20_notice2": "(如果你有的话)",
         "import_backup": "导入%(wallet_name)s 2.0 钱包备份文件 (.bin)",
         "import_backup_choose": "请在对话框中选择备份文件。备份文件不会上传至远端服务器，只在本地浏览器中进行处理。",
         "import_balance": "导入余额",
-        "import_bts": "导入一个 BTS 0.9.3c 私钥导出文件",
+        "import_bts": "导入一个 DFS 0.9.3c 私钥导出文件",
         "import_bts1": "从BitShares 0.9.3c导入",
         "import_key_success": "已成功导入 %(count)s 个密钥。",
         "import_keys": "导入私钥",

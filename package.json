@@ -1,9 +1,9 @@
 {
-    "name": "BitShares2-light",
+    "name": "defishares-ui",
     "version": "5.0.250727-rc1",
-    "description": "Reference UI to showcase all features of the BitShares blockchain.",
+    "description": "DefiShares browser wallet forked from bitshares-ui and adapted for the DefiShares chain.",
     "homepage": "https://github.com/bitshares/bitshares-ui",
-    "author": "BitShares UI Devs <ui-dev@bitshares.org>",
+    "author": "DefiShares Contributors",
     "contributors": [],
     "license": "MIT",
     "engines": {
@@ -84,8 +84,8 @@
     },
     "browsersList": "electron 1.7",
     "build": {
-        "productName": "BitShares",
-        "appId": "org.bitshares.graphene",
+        "productName": "DefiShares",
+        "appId": "org.defishares.graphene",
         "files": [
             "build/electron",
             "!node_modules"
@@ -129,7 +129,7 @@
                 "AppImage",
                 "snap"
             ],
-            "synopsis": "BitShares: Cryptocurrency and Decentralized Exchange"
+            "synopsis": "DefiShares: Gold-oriented collateral and decentralized exchange wallet"
         },
         "directories": {
             "buildResources": "resources",

@@ -24,7 +24,7 @@
         "create_new": "Crear una nueva cuenta",
         "credit_offer": "Credit Management",
         "deactivate_suspicious_proposals": "Deactivate suspicious proposals",
-        "deposit": "Depositar BTS",
+        "deposit": "Depositar DFS",
         "deposit_address": "Su dirección de depósito es su nombre de cuenta",
         "deposit_withdraw": "Depositar/Retirar",
         "download_history": "Download History",
@@ -67,7 +67,7 @@
         "in_open": "Esta es la cantidad de %(asset)s que usted tiene en pedidos abiertos.",
         "in_open_value": "Este es el valor estimado de lo %(asset)s que usted tiene en pedidos abiertos.",
         "intro_text_1": "Su Decentralized Platform",
-        "intro_text_2": "<b>El DEX</b> está inherentemente descentralizado, permitiéndote comerciar BitShares core token (BTS) y un rango de activos sin confianza con precio estable, vinculado al mercado como bitUSD, bitCNY, bitBTC, bitGold y mucho mas. estos activos pueden ser comerciados sin <b>zero</b> rischio de contraparte, poniéndote en control total de tus fondos.",
+        "intro_text_2": "<b>El DEX</b> está inherentemente descentralizado, permitiéndote comerciar BitShares core token (DFS) y un rango de activos sin confianza con precio estable, vinculado al mercado como USD, CNY, BTC, GOLD y mucho mas. estos activos pueden ser comerciados sin <b>zero</b> rischio de contraparte, poniéndote en control total de tus fondos.",
         "intro_text_3": "<b>El DEX</b> también permite la creación de activos emitidos por el usuario (UIAs), que pueden ser comerciados en contra de cualquier otro UIAs o activos sin confianza en la plataforma.  Un emisor muy conocido en The DEX es <b> OpenLedger</b>, que ofrece una serie de activos que incluyen BTC, ETH, STEEM, DASH, LTC, DOGE, y mucho mas",
         "intro_text_4": "Esto le da a los comerciantes de criptomonedas una combinación única de comercio tradicional y descentralizado, todo en una interfaz de intercambio familiar. Feliz comercio!",
         "intro_text_title": "Bienvenido en BitShares",
@@ -511,7 +511,7 @@
         "ws_status": "Estado de conexión de nodo completo"
     },
     "assets": {
-        "BTS": " BTS es el token principal de la cadena de bloques de BitShares"
+        "DFS": " DFS es el token principal de la cadena de bloques de BitShares"
     },
     "boolean": {
         "false": "Falso",
@@ -998,8 +998,8 @@
                 "feed_price": "Feed price",
                 "global_settlement_price": "Global settlement Price will be",
                 "global_settlement_trigger": "Liquidación global sucede a precio",
-                "initial_collateral_ratio": "Initial collateral ratio (ICR)",
-                "initial_collateral_ratio2": "Initial collateral ratio (ICR, Set by asset owner)",
+                "initial_collateral_ratio": "Minimum borrow collateral ratio (ICR)",
+                "initial_collateral_ratio2": "Minimum borrow collateral ratio (ICR)",
                 "maintenance_collateral_ratio": "Relación colateral de mantenimiento (MCR)",
                 "maintenance_collateral_ratio2": "Maintenance collateral ratio (MCR, Set by asset owner)",
                 "margin_call_fee_ratio": "Margin Call Fee Ratio (MCFR)",
@@ -1015,7 +1015,7 @@
                 "core_exchange_rate": "CER",
                 "empty": "No valid feed producers",
                 "feed_price": "Feed price",
-                "initial_collateral_ratio": "ICR",
+                "initial_collateral_ratio": "Minimum borrow collateral ratio (ICR)",
                 "maintenance_collateral_ratio": "MCR",
                 "maximum_short_squeeze_ratio": "MSSR",
                 "published": "Publicado",
@@ -1177,10 +1177,10 @@
             "create": "Crear una nueva propuesta de trabajador",
             "create_text_1": "Para crear su nuevo trabajador, complete el siguiente formulario. El trabajador se creará utilizando su cuenta actualmente activa, que ya debe ser un miembro vitalicio.",
             "create_text_2": "Considere cuidadosamente los parámetros que elige, ya que no se pueden cambiar una vez que haya publicado su trabajador.",
-            "daily_pay": "Pago diario (BTS)",
+            "daily_pay": "Pago diario (DFS)",
             "date_text": "La fecha de inicio debe ser de al menos una semana en el futuro para que las personas tengan tiempo de descubrir, evaluar y votar a su trabajador.",
             "name_text": "El nombre de su trabajador debe ser breve y descriptivo, algo como esto: 'Objetivo del trabajador - Nombre de la cuenta'",
-            "pay_text": "El pago diario define cuánto quiere que le paguen por día y se define en BTS. La mejor práctica actual es definir un salario en USD / CNY, y comprometerse a quemar cualquier superávit que reciba como resultado del aumento del precio de BTS. Mientras su trabajador esté activo y tenga suficientes votos para estar por encima del trabajador de reembolso, recibirá este salario diario.",
+            "pay_text": "El pago diario define cuánto quiere que le paguen por día y se define en DFS. La mejor práctica actual es definir un salario en USD / CNY, y comprometerse a quemar cualquier superávit que reciba como resultado del aumento del precio de DFS. Mientras su trabajador esté activo y tenga suficientes votos para estar por encima del trabajador de reembolso, recibirá este salario diario.",
             "period": "Duración del trabajador",
             "title": "Presupuestos por Trabajos",
             "url_text": "Debe proporcionar un sitio web, un documento de github o un documento de Google Docs que describan con más detalle el propósito del trabajador y cómo piensa utilizar el salario del trabajador..",
@@ -1191,7 +1191,7 @@
     },
     "external_service_provider": {
         "bridge": {
-            "description": "Bridges are external service providers that allow you to swap assets in and out of the BitShares Blockchain. For example, you can send your BTC on the Bitcoin Blockchain to a Bridge, who will swap it and give you an equivalent amount of BTS or another Gateways UIA on the BitShares Blockchain (for a fee of course). Normally, a Bridge does not hold your funds, but trust is required that they send you back the proper amount of the target asset. As it is an external service providers you implicitly agree to their Terms and Conditions by using any of their services or assets.",
+            "description": "Bridges are external service providers that allow you to swap assets in and out of the BitShares Blockchain. For example, you can send your BTC on the Bitcoin Blockchain to a Bridge, who will swap it and give you an equivalent amount of DFS or another Gateways UIA on the BitShares Blockchain (for a fee of course). Normally, a Bridge does not hold your funds, but trust is required that they send you back the proper amount of the target asset. As it is an external service providers you implicitly agree to their Terms and Conditions by using any of their services or assets.",
             "short": "Bridge",
             "what_is": "What is a Bridge?"
         },
@@ -1264,8 +1264,8 @@
         "asset_to_withdraw": "activos para retirar:",
         "asset_unavailable": "El porton para %(asset)s no esta en servicio",
         "assets": {
-            "bit": "bit%(asset)s es un derivado que rastrea el valor real de %(backed)s. esto es 100%% descentralizado, sin confianza y respaldado por garantías en poder de blockchain en un contrato inteligente.",
-            "bitcny": "bitCNY se puede depositar o retirar 1:1 a Yuan real mediante un servicio de puerta de enlace como Magic Wallet. Para más información, consulte https://www.magicw.net/",
+            "bit": "%(asset)s es un derivado que rastrea el valor real de %(backed)s. esto es 100%% descentralizado, sin confianza y respaldado por garantías en poder de blockchain en un contrato inteligente.",
+            "bitcny": "CNY se puede depositar o retirar 1:1 a Yuan real mediante un servicio de puerta de enlace como Magic Wallet. Para más información, consulte https://www.magicw.net/",
             "bridge": "El activo %(asset)s es respaldado 1:1 por real %(backed)s y puede ser depositado or retiado usando el servico de porton proporcionado por CryptoBridge.",
             "gdex": "El %(asset)s activo es respaldado 1:1 por real %(backed)s y puede ser depositado or retirado usando el servico de porton proporcionado por GDex.",
             "iob": "The %(asset)s asset is backed 1:1 by real %(backed)s and can be deposited or withdrawn using the gateway service provided by ioxbank.com.",
@@ -1285,7 +1285,7 @@
             "support_block": "Para problemas de DEPÓSITO Y RETIRADA utilizando \"SERVICIO DE TRANSFERENCIA BitSpark \", comuníquese con BitSpark a:"
         },
         "bridge": "Puente",
-        "bridge_text": "Un puente le permite intercambiar un activo por otro, por ejemplo BTC a BTS.",
+        "bridge_text": "Un puente le permite intercambiar un activo por otro, por ejemplo BTC a DFS.",
         "calc": "Calculando",
         "choose_deposit": "Seleccione la moneda que desea depositar",
         "choose_withdraw": "Seleccione la moneda que desea retirar",
@@ -1731,7 +1731,7 @@
             "address_generation_error": "No se puede generar la dirección",
             "amount": "Cantidad a depositar",
             "asset": "Activo",
-            "bts_transfer_description": "Es fácil recibir BTS desde cualquier lugar. Siempre que se envíe BTS a su nombre de cuenta, aparecerá en su billetera. Este código QR también contiene su nombre de cuenta.",
+            "bts_transfer_description": "Es fácil recibir DFS desde cualquier lugar. Siempre que se envíe DFS a su nombre de cuenta, aparecerá en su billetera. Este código QR también contiene su nombre de cuenta.",
             "cancel": "Cancelar",
             "close": "Cerrar",
             "header": "Depositar a %(account_name)s",
@@ -1834,7 +1834,7 @@
             "enter_public_signing_key": "Enter your public signing key",
             "invalid_key": "Public Key is invalid",
             "public_signing_key": "Public Signing Key",
-            "text": "After being voted in as an active witness you are added in the rotation of block producers and expected to produce blocks signed by your signing key and you are rewarded in BTS per produced block. Common criteria that help make your case are <ul><li>implementation of fallbacks (e.g. running a hot swap backup server) and appropriate server specifications to ensure a low number of missed blocks (e.g. high connectivity)</li><li>participation in block production and rolling releases of the testnet</li><li>provision of a public node for the community</li><li>publication of price feeds for the BitAssets</li></ul> Submit a link to your website or forum post explaining why you would be a exemplary member to attract enough votes to become active.",
+            "text": "After being voted in as an active witness you are added in the rotation of block producers and expected to produce blocks signed by your signing key and you are rewarded in DFS per produced block. Common criteria that help make your case are <ul><li>implementation of fallbacks (e.g. running a hot swap backup server) and appropriate server specifications to ensure a low number of missed blocks (e.g. high connectivity)</li><li>participation in block production and rolling releases of the testnet</li><li>provision of a public node for the community</li><li>publication of price feeds for the BitAssets</li></ul> Submit a link to your website or forum post explaining why you would be a exemplary member to attract enough votes to become active.",
             "url": "URL",
             "web_example": "Enter link to your witness proposal post",
             "witness_account": "Witness Account"
@@ -2240,7 +2240,7 @@
         "backup_favoritesbtn": "Favoritos de respaldo",
         "backup_favoritestext": "Haga una copia de seguridad de sus favoritos para restaurarlos más tarde después de las actualizaciones.",
         "backup_key": "Importar una clave privada",
-        "backup_legacy": "Importar un BTS 0.9.3c archivo clave de exportación(.json)",
+        "backup_legacy": "Importar un DFS 0.9.3c archivo clave de exportación(.json)",
         "backup_text": "Crea copias de seguridad aquí.",
         "backupcreate_backup": "Crear una copia de seguridad local de la billetera",
         "backupcreate_brainkey": "Crear una copia de seguridad de brainkey",
@@ -2281,7 +2281,7 @@
         "lightTheme": "Thema Light",
         "local_wallet": "Acceso local a la billetera",
         "locale": "Cambiar Idioma",
-        "lookup_text": "Haga clic en el botón a continuación para verificar los saldos no reclamados desde BTS 1.0",
+        "lookup_text": "Haga clic en el botón a continuación para verificar los saldos no reclamados desde DFS 1.0",
         "low_latency": "Baja latencia",
         "medium_latency": "Latencia media",
         "midnightTheme": "Medianoche (Midnight)",
@@ -2381,7 +2381,7 @@
         "borrow": {
             "borrow_tooltip": " También puede encontrar esta función en su Tablero de mandos en la pestaña Posiciones de margen, o haciendo clic en Pedir prestado en el intercambio",
             "choose": "Elija el SmartCoin para el que desea crear una posición",
-            "description": "Pedir prestado un BitAsset de la cadena de bloques de BitShares block por el bloqueo de la garantía (e.g. bitUSD, bitCNY, etc.)",
+            "description": "Pedir prestado un BitAsset de la cadena de bloques de BitShares block por el bloqueo de la garantía (e.g. USD, CNY, etc.)",
             "do_it": "¡Vamos a hacerlo!",
             "get_started": " ¡Empezar!",
             "navigate_with_keys": "El mecanismo de la generación de SmartCoin se explicará en los siguientes pasos. También puede utilizar las teclas de flecha para navegar",
@@ -2390,13 +2390,13 @@
             "previous": " Anterior",
             "steps_benefits": {
                 "text": " La creación de una posición de deuda garantizada le permite proporcionar liquidez para su SmartCoin (MPA) deseada, sin renunciar a la propiedad de su garantía, siempre y cuando se asegure la garantía suficiente para garantizar el valor de SmartCoin. Por un lado, vender el SmartCoin recién generado en el mercado abierto creará un apalancamiento en su posición (es decir, lo vende a corto, y tendrá que volver a comprarlo para cerrar la posición). Por otro lado, los titulares de SmartCoin se benefician de SmartCoin, que es significativamente menos volátil, y además pueden solicitar una liquidación de la fuerza para obtener el valor correspondiente en su garantía sin necesidad de mercados.",
-                "text_legend": "Liquidación forzosa: los titulares de un SmartCoin pueden solicitar una liquidación forzosa. El SmartCoin se utiliza para pagar enérgicamente la deuda de las posiciones con menos garantías, mientras que el anterior titular de SmartCoin recibe un aval como si lo hubiera vendido por el precio de liquidación forzada. Cualquier garantía sobrante se devuelve al titular de la posición. Este mecanismo impone un retraso obligatorio después de ser activado para evitar el abuso (24 horas). Precio de liquidación forzada: el precio al que se producirá un precio de liquidación forzada. Se calcula a partir del precio de la alimentación agregando una compensación de liquidación forzada para desincentivar las liquidaciones forzadas. Todas las liquidaciones se convierten en activos de respaldo subyacentes (por ejemplo, BTS en el caso de bitUSD).",
+                "text_legend": "Liquidación forzosa: los titulares de un SmartCoin pueden solicitar una liquidación forzosa. El SmartCoin se utiliza para pagar enérgicamente la deuda de las posiciones con menos garantías, mientras que el anterior titular de SmartCoin recibe un aval como si lo hubiera vendido por el precio de liquidación forzada. Cualquier garantía sobrante se devuelve al titular de la posición. Este mecanismo impone un retraso obligatorio después de ser activado para evitar el abuso (24 horas). Precio de liquidación forzada: el precio al que se producirá un precio de liquidación forzada. Se calcula a partir del precio de la alimentación agregando una compensación de liquidación forzada para desincentivar las liquidaciones forzadas. Todas las liquidaciones se convierten en activos de respaldo subyacentes (por ejemplo, DFS en el caso de USD).",
                 "title": "Beneficios",
                 "title_within": " ¿Cuales son los beneficios?"
             },
             "steps_concept": {
                 "text": "Una posición de deuda garantizada le permite a cada usuario de la cadena de bloques de BitShares generar SmartCoins (MPA) al proporcionar garantía. La garantía se bloquea hasta que devuelva los SmartCoins que haya generado. De hecho, está tomando prestado el SmartCoin de la cadena de bloques de BitShares.",
-                "text_legend": "Ejemplo bitUSD: Proporcione BTS como garantía para tomar prestado bitUSD",
+                "text_legend": "Ejemplo USD: Proporcione DFS como garantía para tomar prestado USD",
                 "title": "Concepto",
                 "title_within": " ¿Qué es una posición de deuda garantizada?"
             },
@@ -2919,9 +2919,9 @@
     },
     "voting": {
         "create_ticket": "Lock 1 {asset}",
-        "description": "The BitShares blockchain allows the holders of its core token BTS to vote on block producers (witnesses), committee members (blockchain governance), worker proposals (reimbursement for tasks and strategic decisions through BSIPs/Polls).",
+        "description": "The DefiShares blockchain allows the holders of its core token DFS to vote on block producers (witnesses), committee members (blockchain governance), worker proposals (reimbursement for tasks and strategic decisions through BSIPs/Polls).",
         "increase_voting_power": "Create Lock",
-        "ticket_explanation": "Obtain voting power by locking away the core token BTS.",
+        "ticket_explanation": "Obtain voting power by locking away the core token DFS.",
         "title": "Voting"
     },
     "walkthrough": {
@@ -2979,7 +2979,7 @@
         "brainkey_w1": "ADVERTENCIA: Para completar su copia de seguridad, imprima esto o escríbalo.",
         "brainkey_w2": "Cualquiera con acceso a su llave de recuperación",
         "brainkey_w3": "tendrá acceso a los fondos de esta billetera.",
-        "bts_09_export": "BTS 0.9.3c Exportar el file de la llave (.json)",
+        "bts_09_export": "DFS 0.9.3c Exportar el file de la llave (.json)",
         "cancel": "Cancelar",
         "change": "Cambia a %(name)s",
         "change_backup": "Ahora que ha cambiado su contraseña, le recomendamos hacer una nueva copia de seguridad.",
@@ -3025,12 +3025,12 @@
         "generated": "Contraseña generada",
         "go_get_started": "Empezando",
         "has_wallet": "Cuando cree su primera cuenta de BitShares, también se creará automáticamente una billetera local BitShares y se almacenará en su navegador. Esta billetera local está encriptada con su contraseña, y contendrá cualquier clave privada que pertenezca a sus cuentas. ¡Es importante que se tome el tiempo para hacer una copia de seguridad de esta billetera una vez creada!",
-        "import_20_notice1": "Importar su BACKUP BTS 2.0+ primero",
+        "import_20_notice1": "Importar su BACKUP DFS 2.0+ primero",
         "import_20_notice2": "(si lo tiene)",
         "import_backup": "Importar Backup",
         "import_backup_choose": "Seleccione su archivo de copia de seguridad en el cuadro de diálogo a continuación. Esto es completamente seguro ya que el archivo no se carga en ninguna parte y nunca abandona su navegador.",
         "import_balance": "Importar balance(s)",
-        "import_bts": "Importar a BTS 0.9.3c exportar llave",
+        "import_bts": "Importar a DFS 0.9.3c exportar llave",
         "import_bts1": "Importar desde BitShares 0.9.3c",
         "import_key_success": "Exitosamente importados %(count)s keys.",
         "import_keys": "Importar Llaves",

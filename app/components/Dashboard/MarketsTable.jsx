@@ -463,26 +463,8 @@ class MarketsTable extends React.Component {
                 if (row.isHidden !== this.state.showHidden) {
                     visible = false;
                 } else if (filter) {
-                    const quoteObject = ChainStore.getAsset(row.quote);
-                    const baseObject = ChainStore.getAsset(row.base);
-
-                    const {isBitAsset: quoteIsBitAsset} = utils.replaceName(
-                        quoteObject
-                    );
-                    const {isBitAsset: baseIsBitAsset} = utils.replaceName(
-                        baseObject
-                    );
-
                     let quoteSymbol = row.quote;
                     let baseSymbol = row.base;
-
-                    if (quoteIsBitAsset) {
-                        quoteSymbol = "bit" + quoteSymbol;
-                    }
-
-                    if (baseIsBitAsset) {
-                        baseSymbol = "bit" + baseSymbol;
-                    }
 
                     const filterPair = filter.includes(":");
 

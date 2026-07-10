@@ -1,7 +1,6 @@
 import React from "react";
 import Translate from "react-translate-component";
 import FormattedAsset from "../../Utility/FormattedAsset";
-import utils from "common/utils";
 import AmountSelector from "../../Utility/AmountSelectorStyleGuide";
 import FormattedPrice from "../../Utility/FormattedPrice";
 import counterpart from "counterpart";
@@ -25,14 +24,12 @@ export function BorrowModalView({
     collateralBalanceObj,
     debtBalanceObj,
     quoteAssetObj,
-    newPosition,
     errors,
 
     // Strings, Floats and Numbers
     collateral,
     collateral_ratio,
     debtAmount,
-    backingPrecision,
     maintenanceRatio,
     remainingBackingBalance,
     remainingDebtBalance,
@@ -59,21 +56,6 @@ export function BorrowModalView({
     onSetUseTCR,
     onTCRatioChange
 }) {
-    let quotePrecision = utils.get_asset_precision(
-        quoteAssetObj.get("precision")
-    );
-
-    const userExchangePrice = newPosition ? (
-        <FormattedPrice
-            noPopOver
-            noTip
-            quote_amount={maintenanceRatio * debtAmount * quotePrecision}
-            quote_asset={quoteAssetObj.get("id")}
-            base_asset={backingAssetObj.get("id")}
-            base_amount={collateral * backingPrecision}
-        />
-    ) : null;
-
     const noValidComponent = (
         <div style={{textAlign: "center"}}>
             <Translate
@@ -205,23 +187,6 @@ export function BorrowModalView({
                                 .getIn(["quote", "amount"])}
                         />
                     </div>
-                    <b />
-                    <div
-                        className={
-                            "borrow-price-final " +
-                            (errors.below_maintenance
-                                ? "has-error"
-                                : errors.close_maintenance
-                                ? "has-warning"
-                                : "")
-                        }
-                    >
-                        <span className="borrow-price-label">
-                            <Translate content="exchange.your_price" />
-                            :&nbsp;
-                        </span>
-                        {userExchangePrice}
-                    </div>
                 </div>
             ) : null}
 
@@ -277,13 +242,6 @@ export function BorrowModalView({
                                             ? "warning"
                                             : errors.below_maintenance
                                             ? "error"
-                                            : null
-                                    }
-                                    help={
-                                        errors.close_maintenance
-                                            ? errors.close_maintenance
-                                            : errors.below_maintenance
-                                            ? errors.below_maintenance
                                             : null
                                     }
                                 >

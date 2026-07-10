@@ -43,6 +43,7 @@ class MarketsStore {
         this.marketCallOrders = Immutable.Map();
         this.allCallOrders = [];
         this.feedPrice = null;
+        this.referencePrice = null;
         this.marketSettleOrders = Immutable.OrderedSet();
         this.activeMarketHistory = Immutable.OrderedSet();
         this.marketData = {
@@ -74,7 +75,7 @@ class MarketsStore {
         this.bucketSize = this._getBucketSize();
         this.priceHistory = [];
         this.lowestCallPrice = null;
-        this.marketBase = "BTS";
+        this.marketBase = "DFS";
         this.marketStats = Immutable.Map({
             change: 0,
             volumeBase: 0,
@@ -96,13 +97,13 @@ class MarketsStore {
 
         this.baseAsset = {
             id: "1.3.0",
-            symbol: "BTS",
+            symbol: "DFS",
             precision: 5
         };
 
         this.coreAsset = {
             id: "1.3.0",
-            symbol: "CORE",
+            symbol: "DFS",
             precision: 5
         };
 
@@ -214,6 +215,7 @@ class MarketsStore {
         this.marketCallOrders = this.marketCallOrders.clear();
         this.allCallOrders = [];
         this.feedPrice = null;
+        this.referencePrice = null;
         this.marketSettleOrders = this.marketSettleOrders.clear();
         this.activeMarketHistory = this.activeMarketHistory.clear();
         this.marketData = {
@@ -264,6 +266,15 @@ class MarketsStore {
         return false;
     }
 
+    _marginCallsDisabledForMarket() {
+        const bitAsset = this[this.invertedCalls ? "baseAsset" : "quoteAsset"];
+        return (
+            bitAsset &&
+            bitAsset.has("bitasset") &&
+            !bitAsset.getIn(["bitasset", "is_prediction_market"], false)
+        );
+    }
+
     onSubscribeMarket(result) {
         let newMarket = false;
         if (result.switchMarket) {
@@ -303,6 +314,9 @@ class MarketsStore {
 
         /* Set the feed price (null if not a bitasset market) */
         this.feedPrice = this._getFeed();
+        this.referencePrice = this.feedPrice
+            ? null
+            : asset_utils.getReferencePrice(this.quoteAsset, this.baseAsset);
 
         if (result.buckets) {
             this.buckets = result.buckets;
@@ -371,38 +385,40 @@ class MarketsStore {
             this.allCallOrders = result.calls;
             this.marketCallOrders = this.marketCallOrders.clear();
 
-            result.calls.forEach(call => {
-                // ChainStore._updateObject(call, false, false);
-                try {
-                    let mcr = this[
-                        this.invertedCalls ? "baseAsset" : "quoteAsset"
-                    ].getIn([
-                        "bitasset",
-                        "current_feed",
-                        "maintenance_collateral_ratio"
-                    ]);
+            if (!this._marginCallsDisabledForMarket()) {
+                result.calls.forEach(call => {
+                    // ChainStore._updateObject(call, false, false);
+                    try {
+                        let mcr = this[
+                            this.invertedCalls ? "baseAsset" : "quoteAsset"
+                        ].getIn([
+                            "bitasset",
+                            "current_feed",
+                            "maintenance_collateral_ratio"
+                        ]);
 
-                    let callOrder = new CallOrder(
-                        call,
-                        assets,
-                        this.quoteAsset.get("id"),
-                        this.feedPrice,
-                        mcr,
-                        this.is_prediction_market
-                    );
-                    if (callOrder.isMarginCalled()) {
-                        this.marketCallOrders = this.marketCallOrders.set(
-                            call.id,
-                            callOrder,
-                            mcr
+                        let callOrder = new CallOrder(
+                            call,
+                            assets,
+                            this.quoteAsset.get("id"),
+                            this.feedPrice,
+                            mcr,
+                            this.is_prediction_market
+                        );
+                        if (callOrder.isMarginCalled()) {
+                            this.marketCallOrders = this.marketCallOrders.set(
+                                call.id,
+                                callOrder,
+                                mcr
+                            );
+                        }
+                    } catch (err) {
+                        console.error(
+                            "Unable to construct calls array, invalid feed price or prediction market?"
                         );
                     }
-                } catch (err) {
-                    console.error(
-                        "Unable to construct calls array, invalid feed price or prediction market?"
-                    );
-                }
-            });
+                });
+            }
 
             callsChanged = didOrdersChange(
                 this.marketCallOrders,
@@ -575,6 +591,17 @@ class MarketsStore {
                 call_order.call_price.quote.asset_id ===
                     this.baseAsset.get("id")
             ) {
+                if (this._marginCallsDisabledForMarket()) {
+                    if (this.marketCallOrders.size) {
+                        this.marketCallOrders = this.marketCallOrders.clear();
+                        this.marketData.calls = [];
+                        this.marketData.flatCalls = [];
+                        this._orderBook(false, true);
+                        this._depthChart();
+                    }
+                    return;
+                }
+
                 const assets = {
                     [this.quoteAsset.get("id")]: {
                         precision: this.quoteAsset.get("precision")
@@ -632,11 +659,11 @@ class MarketsStore {
         if (!this.quoteAsset || !this.baseAsset) {
             return false;
         }
-        if (
-            asset.get("id") ===
-            this[this.invertedCalls ? "baseAsset" : "quoteAsset"].get("id")
-        ) {
-            this[this.invertedCalls ? "baseAsset" : "quoteAsset"] = asset;
+
+        if (asset.get("id") === this.quoteAsset.get("id")) {
+            this.quoteAsset = asset;
+        } else if (asset.get("id") === this.baseAsset.get("id")) {
+            this.baseAsset = asset;
         } else {
             return false;
         }
@@ -668,43 +695,46 @@ class MarketsStore {
              * previously fetched data and the new feed price.
              */
             this.marketCallOrders = this.marketCallOrders.clear();
-            this.allCallOrders.forEach(call => {
-                // ChainStore._updateObject(call, false, false);
-                try {
-                    let mcr = this[
-                        this.invertedCalls ? "baseAsset" : "quoteAsset"
-                    ].getIn([
-                        "bitasset",
-                        "current_feed",
-                        "maintenance_collateral_ratio"
-                    ]);
 
-                    let callOrder = new CallOrder(
-                        call,
-                        assets,
-                        this.quoteAsset.get("id"),
-                        this.feedPrice,
-                        mcr,
-                        this.is_prediction_market
-                    );
-                    if (callOrder.isMarginCalled()) {
-                        this.marketCallOrders = this.marketCallOrders.set(
-                            call.id,
-                            new CallOrder(
-                                call,
-                                assets,
-                                this.quoteAsset.get("id"),
-                                this.feedPrice,
-                                mcr
-                            )
+            if (!this._marginCallsDisabledForMarket()) {
+                this.allCallOrders.forEach(call => {
+                    // ChainStore._updateObject(call, false, false);
+                    try {
+                        let mcr = this[
+                            this.invertedCalls ? "baseAsset" : "quoteAsset"
+                        ].getIn([
+                            "bitasset",
+                            "current_feed",
+                            "maintenance_collateral_ratio"
+                        ]);
+
+                        let callOrder = new CallOrder(
+                            call,
+                            assets,
+                            this.quoteAsset.get("id"),
+                            this.feedPrice,
+                            mcr,
+                            this.is_prediction_market
+                        );
+                        if (callOrder.isMarginCalled()) {
+                            this.marketCallOrders = this.marketCallOrders.set(
+                                call.id,
+                                new CallOrder(
+                                    call,
+                                    assets,
+                                    this.quoteAsset.get("id"),
+                                    this.feedPrice,
+                                    mcr
+                                )
+                            );
+                        }
+                    } catch (err) {
+                        console.error(
+                            "Unable to construct calls array, invalid feed price or prediction market?"
                         );
                     }
-                } catch (err) {
-                    console.error(
-                        "Unable to construct calls array, invalid feed price or prediction market?"
-                    );
-                }
-            });
+                });
+            }
 
             // this.marketCallOrders = this.marketCallOrders.withMutations(callOrder => {
             //     if (callOrder && callOrder.first()) {
@@ -726,6 +756,11 @@ class MarketsStore {
             // Update depth chart data
             this._depthChart();
         }
+
+        this.referencePrice = this.feedPrice
+            ? null
+            : asset_utils.getReferencePrice(this.quoteAsset, this.baseAsset);
+        this.emitChange();
     }
 
     _getFeed() {
@@ -947,9 +982,7 @@ class MarketsStore {
                 .sort((a, b) => {
                     return a.getPrice() - b.getPrice();
                 })
-                .map(order => {
-                    return order;
-                })
+                .valueSeq()
                 .toArray();
 
             // Sum bids at same price
@@ -972,9 +1005,7 @@ class MarketsStore {
                 .sort((a, b) => {
                     return a.getPrice() - b.getPrice();
                 })
-                .map(order => {
-                    return order;
-                })
+                .valueSeq()
                 .toArray();
 
             // Sum asks at same price
@@ -1095,6 +1126,7 @@ class MarketsStore {
 
                     return order;
                 })
+                .valueSeq()
                 .toArray();
 
             // Sum calls at same price

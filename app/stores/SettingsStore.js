@@ -13,7 +13,13 @@ import {
     getUnits
 } from "branding";
 
-const CORE_ASSET = "BTS"; // Setting this to BTS to prevent loading issues when used with BTS chain which is the most usual case currently
+const DEFISHARES_CHAIN_PREFIX = "300a25f6";
+const BITSHARES_TESTNET_CHAIN_PREFIX = "39f5e2ed";
+const CORE_ASSET = "DFS";
+const LEGACY_DEFISHARES_API_NODES = new Set([
+    "ws://127.0.0.1:8090",
+    "ws://43.161.222.116/ws/"
+]);
 
 const STORAGE_KEY = "__graphene__";
 let ss = ls(STORAGE_KEY);
@@ -113,7 +119,6 @@ class SettingsStore {
             faucet_address: settingsAPIs.DEFAULT_FAUCET,
             unit: CORE_ASSET,
             fee_asset: CORE_ASSET,
-            showSettles: false,
             showAssetPercent: false,
             walletLockTimeout: 60 * 10,
             themes: getDefaultTheme(),
@@ -155,7 +160,6 @@ class SettingsStore {
             unit: getUnits(),
             fee_asset: getUnits(),
             showProposedTx: [{translate: "yes"}, {translate: "no"}],
-            showSettles: [{translate: "yes"}, {translate: "no"}],
             showAssetPercent: [{translate: "yes"}, {translate: "no"}],
             themes: ["darkTheme", "lightTheme", "midnightTheme"],
             passwordLogin: [
@@ -315,7 +319,22 @@ class SettingsStore {
             this._saveSettings(settings_v3, this._getDefaultSetting());
         }
 
-        return this._loadSettings();
+        let settings = this._loadSettings();
+        return this._ensurePreferredApiServer(settings);
+    }
+
+    _ensurePreferredApiServer(settings) {
+        const officialNodes = new Set(
+            settingsAPIs.WS_NODE_LIST.map(node => node.url)
+        );
+        if (
+            !settings.apiServer ||
+            LEGACY_DEFISHARES_API_NODES.has(settings.apiServer) ||
+            !officialNodes.has(settings.apiServer)
+        ) {
+            settings.apiServer = settingsAPIs.DEFAULT_WS_NODE;
+        }
+        return settings;
     }
 
     /**
@@ -450,8 +469,8 @@ class SettingsStore {
             this.basesKey = this._getChainKey("preferredBases");
             // Default markets setup
             let topMarkets = {
-                markets_4018d784: getMyMarketsQuotes(),
-                markets_39f5e2ed: [
+                [`markets_${DEFISHARES_CHAIN_PREFIX}`]: getMyMarketsQuotes(),
+                [`markets_${BITSHARES_TESTNET_CHAIN_PREFIX}`]: [
                     // TESTNET
                     "PEG.FAKEUSD",
                     "BTWTY"
@@ -459,18 +478,18 @@ class SettingsStore {
             };
 
             let bases = {
-                markets_4018d784: getMyMarketsBases(),
-                markets_39f5e2ed: [
+                [`markets_${DEFISHARES_CHAIN_PREFIX}`]: getMyMarketsBases(),
+                [`markets_${BITSHARES_TESTNET_CHAIN_PREFIX}`]: [
                     // TESTNET
                     "TEST"
                 ]
             };
 
             let coreAssets = {
-                markets_4018d784: "BTS",
-                markets_39f5e2ed: "TEST"
+                [`markets_${DEFISHARES_CHAIN_PREFIX}`]: "DFS",
+                [`markets_${BITSHARES_TESTNET_CHAIN_PREFIX}`]: "TEST"
             };
-            let coreAsset = coreAssets[this.starredKey] || "BTS";
+            let coreAsset = coreAssets[this.starredKey] || CORE_ASSET;
             /*
              * Update units depending on the chain, also make sure the 0 index
              * asset is always the correct CORE asset name
@@ -478,8 +497,13 @@ class SettingsStore {
             this.onUpdateUnits();
             this.defaults.unit[0] = coreAsset;
 
-            let defaultBases = bases[this.starredKey] || bases.markets_4018d784;
+            let defaultBases =
+                bases[this.starredKey] ||
+                bases[`markets_${DEFISHARES_CHAIN_PREFIX}`];
             let storedBases = ss.get(this.basesKey, []);
+            storedBases = storedBases
+                .map(base => (base === "BTS" ? CORE_ASSET : base))
+                .filter(base => defaultBases.indexOf(base) !== -1);
             this.preferredBases = Immutable.List(
                 storedBases.length ? storedBases : defaultBases
             );
@@ -688,7 +712,10 @@ class SettingsStore {
     }
 
     _getChainId() {
-        return (Apis.instance().chain_id || "4018d784").substr(0, 8);
+        return (Apis.instance().chain_id || DEFISHARES_CHAIN_PREFIX).substr(
+            0,
+            8
+        );
     }
 
     _getChainKey(key) {

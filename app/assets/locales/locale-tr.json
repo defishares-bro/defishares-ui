@@ -24,7 +24,7 @@
         "create_new": "Yeni Hesap Oluştur",
         "credit_offer": "Credit Management",
         "deactivate_suspicious_proposals": "Şüpheli teklifleri devre dışı bırak",
-        "deposit": "BTS'e para yatırın",
+        "deposit": "DFS'e para yatırın",
         "deposit_address": "Para yatırma adresiniz hesap adınızdır",
         "deposit_withdraw": "Yatır/Çek",
         "download_history": "Geçmişi İndir",
@@ -511,7 +511,7 @@
         "ws_status": "Websocket Bağlantı Durumu"
     },
     "assets": {
-        "BTS": "BTS, BitShares Blockchain'in temel simgesidir"
+        "DFS": "DFS, BitShares Blockchain'in temel simgesidir"
     },
     "boolean": {
         "false": "False",
@@ -992,8 +992,8 @@
                 "feed_price": "Yem fiyatı",
                 "global_settlement_price": "Küresel yerleşim Fiyatı",
                 "global_settlement_trigger": "Küresel uzlaşma fiyata olur",
-                "initial_collateral_ratio": "Initial collateral ratio (ICR)",
-                "initial_collateral_ratio2": "Initial collateral ratio (ICR, Set by asset owner)",
+                "initial_collateral_ratio": "Minimum borrow collateral ratio (ICR)",
+                "initial_collateral_ratio2": "Minimum borrow collateral ratio (ICR)",
                 "maintenance_collateral_ratio": "Sürdürme Teminat Oranı (MCR)",
                 "maintenance_collateral_ratio2": "Maintenance collateral ratio (MCR, Set by asset owner)",
                 "margin_call_fee_ratio": "Margin Call Fee Ratio (MCFR)",
@@ -1009,7 +1009,7 @@
                 "core_exchange_rate": "CER",
                 "empty": "Geçerli yem üreticisi yok",
                 "feed_price": "Yem fiyatı",
-                "initial_collateral_ratio": "ICR",
+                "initial_collateral_ratio": "Minimum borrow collateral ratio (ICR)",
                 "maintenance_collateral_ratio": "MCR",
                 "maximum_short_squeeze_ratio": "MSSR",
                 "published": "Yayınlanan",
@@ -1171,10 +1171,10 @@
             "create": "Yeni bir çalışan teklifi oluşturun",
             "create_text_1": "Yeni çalışanınızı oluşturmak için lütfen aşağıdaki formu doldurun. Çalışan, halihazırda ömür boyu üye olması gereken aktif hesabınız kullanılarak oluşturulacaktır.",
             "create_text_2": "Çalışanınızı yayınladıktan sonra değiştirilemeyecekleri için seçtiğiniz parametreleri dikkatlice düşünün.",
-            "daily_pay": "Günlük ödeme (BTS)",
+            "daily_pay": "Günlük ödeme (DFS)",
             "date_text": "İnsanlara çalışanınızı keşfetme, değerlendirme ve oy verme zamanı tanımak için başlangıç ​​tarihi en az bir hafta sonra olmalıdır.",
             "name_text": "Çalışanınızın adı kısa ve açıklayıcı olmalıdır, bunun gibi bir şey: 'Çalışan Amacı - Hesap Adı'",
-            "pay_text": "Günlük ödeme, günde ne kadar ödeme almak istediğinizi tanımlar ve BTS'de tanımlanır. Mevcut en iyi uygulama, USD/CNY cinsinden bir maaş tanımlamak ve BTS fiyatının artması sonucunda elde ettiğiniz fazlalığı yakmayı taahhüt etmektir. İşçiniz aktif olduğu ve iade işçisinin üzerinde olmak için yeterli oyu olduğu sürece, bu günlük maaşı alırsınız.",
+            "pay_text": "Günlük ödeme, günde ne kadar ödeme almak istediğinizi tanımlar ve DFS'de tanımlanır. Mevcut en iyi uygulama, USD/CNY cinsinden bir maaş tanımlamak ve DFS fiyatının artması sonucunda elde ettiğiniz fazlalığı yakmayı taahhüt etmektir. İşçiniz aktif olduğu ve iade işçisinin üzerinde olmak için yeterli oyu olduğu sürece, bu günlük maaşı alırsınız.",
             "period": "işçi süresi",
             "title": "Bütçe Öğeleri",
             "url_text": "Çalışanın amacını ve işçi maaşını nasıl kullanmayı düşündüğünüzü daha ayrıntılı olarak açıklayan bir web sitesi, github belgesi veya google doc sağlamanız gerekir.",
@@ -1185,7 +1185,7 @@
     },
     "external_service_provider": {
         "bridge": {
-            "description": "Köprüler, BitShares Blok Zinciri içindeki ve dışındaki varlıkları değiştirmenize izin veren harici hizmet sağlayıcılardır. Örneğin, Bitcoin Blockchain üzerindeki BTC'nizi, takas edecek ve size BitShares Blockchain'de (elbette bir ücret karşılığında) eşdeğer miktarda BTS veya başka bir Gateway UIA verecek olan bir Köprüye gönderebilirsiniz. Normalde, bir Köprü paranızı tutmaz, ancak size hedef varlığın uygun miktarını geri göndermeleri için güven gerekir. Harici bir hizmet sağlayıcı olduğu için, hizmetlerinden veya varlıklarından herhangi birini kullanarak Şartlar ve Koşullarını zımnen kabul edersiniz.",
+            "description": "Köprüler, BitShares Blok Zinciri içindeki ve dışındaki varlıkları değiştirmenize izin veren harici hizmet sağlayıcılardır. Örneğin, Bitcoin Blockchain üzerindeki BTC'nizi, takas edecek ve size BitShares Blockchain'de (elbette bir ücret karşılığında) eşdeğer miktarda DFS veya başka bir Gateway UIA verecek olan bir Köprüye gönderebilirsiniz. Normalde, bir Köprü paranızı tutmaz, ancak size hedef varlığın uygun miktarını geri göndermeleri için güven gerekir. Harici bir hizmet sağlayıcı olduğu için, hizmetlerinden veya varlıklarından herhangi birini kullanarak Şartlar ve Koşullarını zımnen kabul edersiniz.",
             "short": "Köprü",
             "what_is": "Köprü nedir?"
         },
@@ -1258,8 +1258,8 @@
         "asset_to_withdraw": "Çekilecek dijital varlık:",
         "asset_unavailable": "The gateway for %(asset)s is not in service",
         "assets": {
-            "bit": "bit%(asset)s, fiyat olarak %(backed)s marketini takip eden bir türev araçtır. Bu hizmet hiçbir merkezi otorite tarafından değil, merkezsiz Bitshares blokzinciri tarafından sağlanır.",
-            "bitcny": "bitCNY, Çin Yuanı'nın Bitshares borsasındaki temsilidir. 1:1 Çin Yuanı ile değiştirilebilen bu dijital varlık Magic Wallet tarafından yürütülmektedir. Daha fazla bilgi için: https://www.magicw.net/",
+            "bit": "%(asset)s, fiyat olarak %(backed)s marketini takip eden bir türev araçtır. Bu hizmet hiçbir merkezi otorite tarafından değil, merkezsiz Bitshares blokzinciri tarafından sağlanır.",
+            "bitcny": "CNY, Çin Yuanı'nın Bitshares borsasındaki temsilidir. 1:1 Çin Yuanı ile değiştirilebilen bu dijital varlık Magic Wallet tarafından yürütülmektedir. Daha fazla bilgi için: https://www.magicw.net/",
             "bridge": "Bu dijital varlık Bitshares üzerinde %(backed)s işlemleri yapmanız için CryptoBridge tarafından %%100 %(backed)s rezervi ile desteklenmektedir. İstediğiniz zaman 1:1 oranında %(asset)s-%(backed)s dönüşümü yapabilirsiniz.",
             "gdex": "Bu dijital varlık Bitshares üzerinde %(backed)s işlemleri yapmanız için Gdex tarafından %%100 %(backed)s rezervi ile desteklenmektedir. İstediğiniz zaman 1:1 oranında %(asset)s-%(backed)s dönüşümü yapabilirsiniz.",
             "iob": "The %(asset)s asset is backed 1:1 by real %(backed)s and can be deposited or withdrawn using the gateway service provided by ioxbank.com.",
@@ -1279,7 +1279,7 @@
             "support_block": "\"BitSpark TRANSFER SERVICE\" kullanılarak YATIRIM VE PARA ÇEKME sorunları için lütfen BitSpark ile şu adresten iletişime geçin:"
         },
         "bridge": "Köprü",
-        "bridge_text": " Köprüler bir dijital varlıktan bir diğerine geçiş yapmanızı sağlar, örn. BTC'yi BTS'ye.",
+        "bridge_text": " Köprüler bir dijital varlıktan bir diğerine geçiş yapmanızı sağlar, örn. BTC'yi DFS'ye.",
         "calc": "Hesaplanıyor...",
         "choose_deposit": "Lütfen yatırmak istediğiniz dijital varlığı seçin",
         "choose_withdraw": "Lütfen çekmek istediğiniz dijital varlığı seçin",
@@ -1725,7 +1725,7 @@
             "address_generation_error": "Adres oluşturulamıyor",
             "amount": "Yatıralacak Miktar",
             "asset": "Varlık",
-            "bts_transfer_description": "BTS'i her yerden almak kolaydır. BTS, hesap adınıza gönderildiği sürece cüzdanınızda görünecektir. Bu QR kodu ayrıca hesap adınızı da içerir.",
+            "bts_transfer_description": "DFS'i her yerden almak kolaydır. DFS, hesap adınıza gönderildiği sürece cüzdanınızda görünecektir. Bu QR kodu ayrıca hesap adınızı da içerir.",
             "cancel": "İptal",
             "close": "Kapat",
             "header": "Depozito %(account_name)s",
@@ -1828,7 +1828,7 @@
             "enter_public_signing_key": "Genel imzalama anahtarınızı girin",
             "invalid_key": "Ortak Anahtar geçersiz",
             "public_signing_key": "Genel İmza Anahtarı",
-            "text": "After being voted in as an active witness you are added in the rotation of block producers and expected to produce blocks signed by your signing key and you are rewarded in BTS per produced block. Common criteria that help make your case are <ul><li>implementation of fallbacks (e.g. running a hot swap backup server) and appropriate server specifications to ensure a low number of missed blocks (e.g. high connectivity)</li><li>participation in block production and rolling releases of the testnet</li><li>provision of a public node for the community</li><li>publication of price feeds for the BitAssets</li></ul> Submit a link to your website or forum post explaining why you would be a exemplary member to attract enough votes to become active.",
+            "text": "After being voted in as an active witness you are added in the rotation of block producers and expected to produce blocks signed by your signing key and you are rewarded in DFS per produced block. Common criteria that help make your case are <ul><li>implementation of fallbacks (e.g. running a hot swap backup server) and appropriate server specifications to ensure a low number of missed blocks (e.g. high connectivity)</li><li>participation in block production and rolling releases of the testnet</li><li>provision of a public node for the community</li><li>publication of price feeds for the BitAssets</li></ul> Submit a link to your website or forum post explaining why you would be a exemplary member to attract enough votes to become active.",
             "url": "URL",
             "web_example": "Tanık teklif gönderinizin bağlantısını girin",
             "witness_account": "Tanık Hesabı"
@@ -2234,7 +2234,7 @@
         "backup_favoritesbtn": "Yedekleme favorileri",
         "backup_favoritestext": "Güncellemelerden sonra daha sonra geri yüklemek için favorilerinizi yedekleyin.",
         "backup_key": "Özel anahtar aktar",
-        "backup_legacy": "BTS 0.9.3c .json dosyası ile cüzdan kurtar",
+        "backup_legacy": "DFS 0.9.3c .json dosyası ile cüzdan kurtar",
         "backup_text": "Cüzdan yedekleme",
         "backupcreate_backup": "Cüzdanı yedekle",
         "backupcreate_brainkey": "TekAnahtar yedeği oluştur",
@@ -2275,7 +2275,7 @@
         "lightTheme": "Açık tema",
         "local_wallet": "Yerel Cüzdan Girişi",
         "locale": "Dili değiştir",
-        "lookup_text": "BTS 1.0'den kalan bakiyelerinizi almak için tıklayın.",
+        "lookup_text": "DFS 1.0'den kalan bakiyelerinizi almak için tıklayın.",
         "low_latency": "Düşük gecikme süresi",
         "medium_latency": "Orta gecikme",
         "midnightTheme": "Gece yarısı",
@@ -2375,7 +2375,7 @@
         "borrow": {
             "borrow_tooltip": "Bu özelliği Gösterge Tablonuzda Teminat Pozisyonları sekmesi altında veya Borsada Ödünç Al'ı tıklayarak da bulabilirsiniz.",
             "choose": "Bir pozisyon oluşturmak istediğiniz SmartCoin'i seçin",
-            "description": "Teminatı kilitleyerek BitShares Blockchain'den bir BitAsset ödünç alın (örn. bitUSD, bitCNY, vb.)",
+            "description": "Teminatı kilitleyerek BitShares Blockchain'den bir BitAsset ödünç alın (örn. USD, CNY, vb.)",
             "do_it": "Haydi Yapalım şunu",
             "get_started": "Başlamak",
             "navigate_with_keys": "SmartCoin üretiminin mekanizması aşağıdaki adımlarda anlatılacaktır. Gezinmek için ok tuşlarını da kullanabilirsiniz.",
@@ -2384,13 +2384,13 @@
             "previous": "Öncesi",
             "steps_benefits": {
                 "text": "Teminatlı Borç Pozisyonu oluşturmak, SmartCoin'in değerini garanti etmek için yeterli teminatı kilitlemeniz şartıyla, teminatınızın mülkiyetinden vazgeçmeden istediğiniz SmartCoin (MPA) için likidite sağlamanıza olanak tanır. Bir yandan, yeni oluşturulan SmartCoin'i açık piyasada satmak, pozisyonunuzda kaldıraç yaratacaktır (yani, onu açığa satarsınız ve pozisyonu kapatmak için geri satın almanız gerekir). Öte yandan, SmartCoin sahipleri, önemli ölçüde daha az değişken olan SmartCoin'den yararlanır ve ayrıca, piyasalara ihtiyaç duymadan teminatında karşılık gelen değeri elde etmek için zorunlu bir uzlaşma talep edebilirler.",
-                "text_legend": "Zorunlu ödeme: SmartCoin sahipleri, zorunlu ödeme talebinde bulunabilir. SmartCoin, en az teminatlı pozisyonların borcunu zorla geri ödemek için kullanılırken, eski SmartCoin sahibi, zorunlu uzlaşma fiyatı için satmış gibi teminat alır. Kalan teminat, pozisyon sahibine iade edilir. Bu mekanizma, kötüye kullanımı önlemek için tetiklendikten sonra zorunlu bir gecikme uygular (24 saat). \nZorunlu Uzlaşma Fiyatı: Zorunlu uzlaşma fiyatının oluşacağı fiyat. Zorunlu yerleşimleri caydırmak için zorunlu yerleşim mahsup eklenerek besleme fiyatından hesaplanır. Tüm ödemeler, temel alınan destek varlığına dönüştürülür (örneğin, bitUSD durumunda BTS).",
+                "text_legend": "Zorunlu ödeme: SmartCoin sahipleri, zorunlu ödeme talebinde bulunabilir. SmartCoin, en az teminatlı pozisyonların borcunu zorla geri ödemek için kullanılırken, eski SmartCoin sahibi, zorunlu uzlaşma fiyatı için satmış gibi teminat alır. Kalan teminat, pozisyon sahibine iade edilir. Bu mekanizma, kötüye kullanımı önlemek için tetiklendikten sonra zorunlu bir gecikme uygular (24 saat). \nZorunlu Uzlaşma Fiyatı: Zorunlu uzlaşma fiyatının oluşacağı fiyat. Zorunlu yerleşimleri caydırmak için zorunlu yerleşim mahsup eklenerek besleme fiyatından hesaplanır. Tüm ödemeler, temel alınan destek varlığına dönüştürülür (örneğin, USD durumunda DFS).",
                 "title": "Faydalar",
                 "title_within": "Faydaları nelerdir?"
             },
             "steps_concept": {
                 "text": "Teminatlandırılmış Borç Pozisyonu, BitShares Blockchain'in her kullanıcısının teminat sağlayarak SmartCoins (MPA) oluşturmasını sağlar. Teminat, siz oluşturduğunuz SmartCoin'leri geri ödeyene kadar kilitlenir. SmartCoin'i BitShares Blockchain'den etkin bir şekilde ödünç alıyorsunuz.",
-                "text_legend": "Örnek bitUSD: BTS'yi bitUSD ödünç almak için teminat olarak sağlayın",
+                "text_legend": "Örnek USD: DFS'yi USD ödünç almak için teminat olarak sağlayın",
                 "title": "Konsept",
                 "title_within": "Teminatlı Borç Pozisyonu nedir?"
             },
@@ -2913,9 +2913,9 @@
     },
     "voting": {
         "create_ticket": "Kilit 1 {asset}",
-        "description": "BitShares blok zinciri, çekirdek tokeni BTS sahiplerinin blok üreticilerine (tanıklara), komite üyelerine (blockchain yönetimi), işçi tekliflerine (BSIP'ler/Anketler aracılığıyla görevler ve stratejik kararlar için geri ödeme) oy vermelerine olanak tanır.",
+        "description": "The DefiShares blockchain allows the holders of its core token DFS to vote on block producers (witnesses), committee members (blockchain governance), worker proposals (reimbursement for tasks and strategic decisions through BSIPs/Polls).",
         "increase_voting_power": "Kilit Oluştur",
-        "ticket_explanation": "Çekirdek jeton BTS'yi kilitleyerek oylama gücü elde edin.",
+        "ticket_explanation": "Obtain voting power by locking away the core token DFS.",
         "title": "Oylama"
     },
     "walkthrough": {
@@ -2973,7 +2973,7 @@
         "brainkey_w1": "UYARI : Bunu bir kağıda yazın yada çıktı alın.",
         "brainkey_w2": "Kurtarma anahtarınıza ulaşan herhangi bir kimse",
         "brainkey_w3": "bu cüzdan içindeki fonlara ulaşabilir.",
-        "bts_09_export": "BTS 0.9.3c yedek anahtar dosyası (.json)",
+        "bts_09_export": "DFS 0.9.3c yedek anahtar dosyası (.json)",
         "cancel": "İptal",
         "change": "Değiştir (%(name)s Cüzdan)",
         "change_backup": "Şifrenizi değiştirdiğiniz için cüzdanınızı yeniden yedeklemeniz gerekmektedir.",
@@ -3019,12 +3019,12 @@
         "generated": "Oluşturulan şifre",
         "go_get_started": "Başlarken",
         "has_wallet": "Bitshares hesabı açtığınızda cüzdanınızın kontrolü tamamen size aittir. Bir başka kişi sizin cüzdanınızı kontrol edemez. Cüzdana erişim için gerekli olan TekAnahtar bilgisayarınızda şifreli olarak saklanır.",
-        "import_20_notice1": "İlk önce BTS 2.0+ YEDEĞİNİZİ içeri aktarın ",
+        "import_20_notice1": "İlk önce DFS 2.0+ YEDEĞİNİZİ içeri aktarın ",
         "import_20_notice2": "(eğer varsa)",
         "import_backup": "Yedekten geri yükle",
         "import_backup_choose": "Lütfen yedekleme dosyasını seçin. Bu işlem esnasında dosya kendi bilgisayarınızdan dışarıya asla aktarılmaz, bütün işlem bilgisayarınızda gerçekleşir.",
         "import_balance": "Bakiyeyi aktar.",
-        "import_bts": "BTS 0.9.3c anahtar aktarma",
+        "import_bts": "DFS 0.9.3c anahtar aktarma",
         "import_bts1": "BitShares 0.9.3c den aktarım",
         "import_key_success": "İşleminiz başarıyla tamamlandı!",
         "import_keys": "İçeri Anahtar Aktar",

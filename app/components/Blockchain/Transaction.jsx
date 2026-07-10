@@ -1292,29 +1292,16 @@ class Transaction extends React.Component {
                             <td>
                                 <Translate
                                     component="span"
-                                    content="explorer.asset.price_feed.maximum_short_squeeze_ratio"
+                                    content="explorer.asset.price_feed.initial_collateral_ratio"
                                 />
                             </td>
                             <td>
-                                {(
-                                    feed.maximum_short_squeeze_ratio / 1000
-                                ).toFixed(2)}
-                            </td>
-                        </tr>
-                    );
-
-                    rows.push(
-                        <tr key={key++}>
-                            <td>
-                                <Translate
-                                    component="span"
-                                    content="explorer.asset.price_feed.maintenance_collateral_ratio"
-                                />
-                            </td>
-                            <td>
-                                {(
-                                    feed.maintenance_collateral_ratio / 1000
-                                ).toFixed(2)}
+                                {typeof feed.initial_collateral_ratio ===
+                                "number"
+                                    ? (
+                                          feed.initial_collateral_ratio / 1000
+                                      ).toFixed(2)
+                                    : "-"}
                             </td>
                         </tr>
                     );

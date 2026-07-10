@@ -666,29 +666,6 @@ class Asset extends React.Component {
             icr_item_content =
                 "explorer.asset.price_feed.initial_collateral_ratio2";
         }
-        var mcr_item_content =
-            "explorer.asset.price_feed.maintenance_collateral_ratio";
-        if (
-            "maintenance_collateral_ratio" in bitAsset.options.extensions &&
-            bitAsset.current_feed.maintenance_collateral_ratio ==
-                bitAsset.options.extensions.maintenance_collateral_ratio &&
-            bitAsset.feeds.length >= bitAsset.options.minimum_feeds
-        ) {
-            mcr_item_content =
-                "explorer.asset.price_feed.maintenance_collateral_ratio2";
-        }
-        var mssr_item_content =
-            "explorer.asset.price_feed.maximum_short_squeeze_ratio";
-        if (
-            "maximum_short_squeeze_ratio" in bitAsset.options.extensions &&
-            bitAsset.current_feed.maximum_short_squeeze_ratio ==
-                bitAsset.options.extensions.maximum_short_squeeze_ratio &&
-            bitAsset.feeds.length >= bitAsset.options.minimum_feeds
-        ) {
-            mssr_item_content =
-                "explorer.asset.price_feed.maximum_short_squeeze_ratio2";
-        }
-
         return (
             <Panel header={title}>
                 <table
@@ -730,25 +707,6 @@ class Asset extends React.Component {
                                 {currentFeed.initial_collateral_ratio / 1000}
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <Translate content={mcr_item_content} />
-                            </td>
-                            <td>
-                                {currentFeed.maintenance_collateral_ratio /
-                                    1000}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <Translate content={mssr_item_content} />
-                            </td>
-                            <td>
-                                {currentFeed.maximum_short_squeeze_ratio / 1000}
-                            </td>
-                        </tr>
-                        {this._renderMCFR(bitAsset.options.extensions)}
                     </tbody>
                 </table>
             </Panel>
@@ -804,6 +762,7 @@ class Asset extends React.Component {
     }
 
     renderSettlement(asset) {
+        return null;
         var bitAsset = asset.bitasset;
         if (!("current_feed" in bitAsset)) return <div header={title} />;
 
@@ -1775,26 +1734,6 @@ class Asset extends React.Component {
                 }
             },
             {
-                key: "maintenance_collateral_ratio",
-                title: (
-                    <Translate content="explorer.asset.price_feed_data.maintenance_collateral_ratio" />
-                ),
-                dataIndex: "maintenance_collateral_ratio",
-                render: item => {
-                    return item;
-                }
-            },
-            {
-                key: "maximum_short_squeeze_ratio",
-                title: (
-                    <Translate content="explorer.asset.price_feed_data.maximum_short_squeeze_ratio" />
-                ),
-                dataIndex: "maximum_short_squeeze_ratio",
-                render: item => {
-                    return item;
-                }
-            },
-            {
                 key: "publishDate",
                 fixed: "right",
                 width: 150,
@@ -1821,17 +1760,11 @@ class Asset extends React.Component {
             var publishDate = new Date(feed[1][0] + "Z");
             var feed_price = assetUtils.extractRawFeedPrice(feed[1][1]);
             var core_exchange_rate = feed[1][1].core_exchange_rate;
-            var maintenance_collateral_ratio =
-                "" + feed[1][1].maintenance_collateral_ratio / 1000;
-            var maximum_short_squeeze_ratio =
-                "" + feed[1][1].maximum_short_squeeze_ratio / 1000;
 
             dataSource.push({
                 publisher: publisher,
                 feed_price: feed_price,
                 core_exchange_rate: core_exchange_rate,
-                maintenance_collateral_ratio: maintenance_collateral_ratio,
-                maximum_short_squeeze_ratio: maximum_short_squeeze_ratio,
                 publishDate: publishDate
             });
         }
@@ -1884,8 +1817,6 @@ class Asset extends React.Component {
                         amount: cumulativeGrouping ? debt_cum : c.debt,
                         asset: c.amountToReceive().asset_id
                     },
-                    call: c.call_price,
-                    tcr: c.order.target_collateral_ratio,
                     cr: {
                         ratio: c.getRatio(),
                         status: c.getStatus()
@@ -2010,35 +1941,6 @@ class Asset extends React.Component {
                     }
                 },
 
-                {
-                    key: "call",
-                    title: (
-                        <span>
-                            <Translate content="exchange.call" />
-                            {unitInfo("call")}
-                        </span>
-                    ),
-                    dataIndex: "call",
-                    render: item => {
-                        return this.formattedPrice(item, true, false);
-                    }
-                },
-                {
-                    key: "tcr",
-                    title: (
-                        <Tooltip
-                            title={counterpart.translate(
-                                "borrow.target_collateral_ratio_explanation"
-                            )}
-                        >
-                            <Translate content="borrow.target_collateral_ratio_short" />
-                        </Tooltip>
-                    ),
-                    dataIndex: "tcr",
-                    render: item => {
-                        return !!item ? (item / 1000).toFixed(3) : "-";
-                    }
-                },
                 {
                     key: "cr",
                     title: <Translate content="borrow.coll_ratio" />,
@@ -2246,12 +2148,7 @@ class Asset extends React.Component {
 
     renderFeedTables(asset) {
         var bitAsset = asset.bitasset;
-        if (
-            !("feeds" in bitAsset) ||
-            bitAsset.feeds.length == 0 ||
-            bitAsset.is_prediction_market ||
-            !bitAsset.feeds.length
-        ) {
+        if (bitAsset.is_prediction_market) {
             return null;
         }
 

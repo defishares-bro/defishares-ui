@@ -116,13 +116,6 @@ class AssetName extends React.Component {
                           )
                         : "";
             } catch (e) {}
-            if (isBitAsset && name === "CNY") {
-                optional =
-                    optional +
-                    " " +
-                    counterpart.translate("gateway.assets.bitcny");
-            }
-
             const upperCasePrefix =
                 prefix && prefix === "bit"
                     ? prefix
@@ -184,8 +177,8 @@ class AssetName extends React.Component {
                 return assetDiv;
             } else {
                 let desc = null;
-                if (replacedName == "BTS") {
-                    desc = {main: counterpart.translate("assets.BTS")};
+                if (replacedName == "DFS") {
+                    desc = {main: counterpart.translate("assets.DFS")};
                 } else {
                     desc = asset_utils.parseDescription(
                         asset.getIn(["options", "description"])

@@ -70,6 +70,9 @@ class ExchangeContainer extends React.Component {
                     feedPrice: () => {
                         return MarketsStore.getState().feedPrice;
                     },
+                    referencePrice: () => {
+                        return MarketsStore.getState().referencePrice;
+                    },
                     currentAccount: () => {
                         return AccountStore.getState().currentAccount;
                     },

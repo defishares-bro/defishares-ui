@@ -15,7 +15,6 @@ import CreateAccountPassword from "./Account/CreateAccountPassword";
 import {Route} from "react-router-dom";
 import {getWalletName, getLogo, getAllowedLogins} from "branding";
 import {Select, Row, Col, Icon} from "bitshares-ui-style-guide";
-var logo = getLogo();
 
 const FlagImage = ({flag, width = 50, height = 50}) => {
     return (
@@ -90,6 +89,7 @@ class LoginSelector extends React.Component {
 
     render() {
         const translator = require("counterpart");
+        const logo = getLogo(this.props.settings.get("themes"));
 
         const flagDropdown = (
             <Select
@@ -115,7 +115,9 @@ class LoginSelector extends React.Component {
                 <div className="grid-block shrink vertical">
                     <div className="grid-content shrink text-center account-creation">
                         <div>
-                            <img src={logo} />
+                            <span className="app-logo-frame account-logo-frame">
+                                <img src={logo} />
+                            </span>
                         </div>
 
                         <div>
@@ -246,13 +248,14 @@ class LoginSelector extends React.Component {
 
 export default connect(LoginSelector, {
     listenTo() {
-        return [AccountStore];
+        return [AccountStore, SettingsStore];
     },
     getProps() {
         return {
             currentAccount:
                 AccountStore.getState().currentAccount ||
-                AccountStore.getState().passwordAccount
+                AccountStore.getState().passwordAccount,
+            settings: SettingsStore.getState().settings
         };
     }
 });

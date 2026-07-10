@@ -17,6 +17,7 @@ import SyncError from "./components/SyncError";
 import counterpart from "counterpart";
 import LogsActions from "actions/LogsActions";
 import NodeSelector from "./components/Utility/NodeSelector";
+import {ChainConfig} from "bitsharesjs-ws";
 /*
  * Electron does not support browserHistory, so we need to use hashHistory.
  * The same is true for servers without configuration options, such as Github Pages
@@ -24,6 +25,7 @@ import NodeSelector from "./components/Utility/NodeSelector";
 import {HashRouter, BrowserRouter} from "react-router-dom";
 
 const Router = __HASH_HISTORY__ ? HashRouter : BrowserRouter;
+const DEFISHARES_ADDRESS_PREFIX = "DFS";
 
 // DEPRECATED / WARNING: this is deactivated because there is a race condition for some components when log is saved,
 //                       since it calls setState. If the subcomponent does not have a tailored rerendering logic, this may a WSOD
@@ -52,6 +54,8 @@ class RootIntl extends React.Component {
 class AppInit extends React.Component {
     constructor() {
         super();
+
+        ChainConfig.address_prefix = DEFISHARES_ADDRESS_PREFIX;
 
         this.state = {
             apiConnected: false,
@@ -286,26 +290,20 @@ class AppInit extends React.Component {
     }
 }
 
-AppInit = connect(
-    AppInit,
-    {
-        listenTo() {
-            return [IntlStore, WalletManagerStore, SettingsStore];
-        },
-        getProps() {
-            return {
-                locale: IntlStore.getState().currentLocale,
-                walletMode:
-                    !SettingsStore.getState().settings.get("passwordLogin") ||
-                    !!WalletManagerStore.getState().current_wallet,
-                theme: SettingsStore.getState().settings.get("themes"),
-                apiServer: SettingsStore.getState().settings.get(
-                    "activeNode",
-                    ""
-                )
-            };
-        }
+AppInit = connect(AppInit, {
+    listenTo() {
+        return [IntlStore, WalletManagerStore, SettingsStore];
+    },
+    getProps() {
+        return {
+            locale: IntlStore.getState().currentLocale,
+            walletMode:
+                !SettingsStore.getState().settings.get("passwordLogin") ||
+                !!WalletManagerStore.getState().current_wallet,
+            theme: SettingsStore.getState().settings.get("themes"),
+            apiServer: SettingsStore.getState().settings.get("activeNode", "")
+        };
     }
-);
+});
 AppInit = supplyFluxContext(alt)(AppInit);
 export default hot(module)(AppInit);

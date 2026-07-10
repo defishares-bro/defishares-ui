@@ -12,7 +12,6 @@ import {Tabs, Tab} from "../Utility/Tabs";
 import AccountOrders from "./AccountOrders";
 import cnames from "classnames";
 import TranslateWithLinks from "../Utility/TranslateWithLinks";
-import {checkMarginStatus} from "common/accountHelper";
 import BalanceWrapper from "./BalanceWrapper";
 import AccountTreemap from "./AccountTreemap";
 import AssetWrapper from "../Utility/AssetWrapper";
@@ -28,7 +27,7 @@ class AccountOverview extends React.Component {
         this.state = {
             shownAssets: props.viewSettings.get("shownAssets", "active"),
             alwaysShowAssets: [
-                "BTS"
+                "DFS"
                 // "USD",
                 // "CNY"
             ],
@@ -45,27 +44,6 @@ class AccountOverview extends React.Component {
         this.setState({
             filterValue: e.target.value
         });
-    }
-
-    UNSAFE_componentWillMount() {
-        this._checkMarginStatus();
-    }
-
-    _checkMarginStatus(props = this.props) {
-        checkMarginStatus(props.account).then(status => {
-            let globalMarginStatus = null;
-            for (let asset in status) {
-                globalMarginStatus =
-                    status[asset].statusClass || globalMarginStatus;
-            }
-            this.setState({globalMarginStatus});
-        });
-    }
-
-    UNSAFE_componentWillReceiveProps(np) {
-        if (np.account !== this.props.account) {
-            this._checkMarginStatus(np);
-        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -205,10 +183,6 @@ class AccountOverview extends React.Component {
                         ? String(this.state.filterValue).toLowerCase()
                         : "";
                     assetName = asset.get("symbol").toLowerCase();
-                    let {isBitAsset} = utils.replaceName(asset);
-                    if (isBitAsset) {
-                        assetName = "bit" + assetName;
-                    }
                 }
 
                 if (
@@ -451,40 +425,22 @@ class AccountOverview extends React.Component {
 
                             <Tab
                                 title="account.collaterals"
-                                subText={
-                                    <span
-                                        className={
-                                            this.state.globalMarginStatus
-                                        }
-                                    >
-                                        {marginValue}
-                                    </span>
-                                }
+                                subText={marginValue}
                             >
-                                <div className="content-block">
-                                    <div className="generic-bordered-box">
-                                        <MarginPositionsTable
-                                            preferredUnit={preferredUnit}
-                                            className="dashboard-table"
-                                            callOrders={call_orders}
-                                            account={account}
-                                        >
-                                            <tr className="total-value">
-                                                <td>{totalValueText}</td>
-                                                <td />
-                                                <td>{debtValue}</td>
-                                                <td className="column-hide-medium">
-                                                    {collateralValue}
-                                                </td>
-                                                <td />
-                                                <td>{marginValue}</td>
-                                                <td className="column-hide-small" />
-                                                <td className="column-hide-small" />
-                                                <td colSpan="5" />
-                                            </tr>
-                                        </MarginPositionsTable>
+                                <MarginPositionsTable
+                                    callOrders={call_orders}
+                                    account={this.props.account}
+                                    preferredUnit={preferredUnit}
+                                >
+                                    <div className="total-value">
+                                        <span className="text">
+                                            {totalValueText}
+                                        </span>
+                                        <span className="value">
+                                            {marginValue}
+                                        </span>
                                     </div>
-                                </div>
+                                </MarginPositionsTable>
                             </Tab>
 
                             <Tab

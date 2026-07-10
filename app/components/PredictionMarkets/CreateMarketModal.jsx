@@ -19,6 +19,16 @@ import {ChainStore} from "bitsharesjs";
 import moment from "moment";
 
 const IS_BITASSET = true;
+const HIDDEN_ISSUER_PERMISSION_KEYS = new Set([
+    "disable_force_settle",
+    "global_settle",
+    "lock_max_supply",
+    "disable_new_supply",
+    "disable_mcr_update",
+    "disable_mssr_update",
+    "disable_bsrm_update",
+    "disable_collateral_bidding"
+]);
 
 export default class CreateMarketModal extends Modal {
     constructor(props) {
@@ -71,6 +81,10 @@ export default class CreateMarketModal extends Modal {
         let permissionBooleans = assetUtils.getFlagBooleans("all", IS_BITASSET);
 
         flagBooleans["charge_market_fee"] = true;
+        HIDDEN_ISSUER_PERMISSION_KEYS.forEach(key => {
+            flagBooleans[key] = false;
+            permissionBooleans[key] = false;
+        });
         let flags = assetUtils.getFlags(flagBooleans, IS_BITASSET);
         return {
             flags,

@@ -33,7 +33,6 @@ class Settings extends React.Component {
             "fee_asset",
             "filteredServiceProviders",
             "browser_notifications",
-            "showSettles",
             "walletLockTimeout",
             "themes",
             "showAssetPercent",
@@ -246,7 +245,7 @@ class Settings extends React.Component {
 
             case "inverseMarket":
             case "confirmMarketOrder":
-                value = findEntry(e.target.value, defaults[setting]) === 0; // USD/BTS is true, BTS/USD is false
+                value = findEntry(e.target.value, defaults[setting]) === 0; // USD/DFS is true, DFS/USD is false
                 break;
 
             case "apiServer":
@@ -260,7 +259,6 @@ class Settings extends React.Component {
                 break;
 
             case "showProposedTx":
-            case "showSettles":
             case "showAssetPercent":
             case "passwordLogin":
             case "viewOnlyMode":

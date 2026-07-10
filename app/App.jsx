@@ -164,14 +164,6 @@ const Barter = Loadable({
     loading: LoadingIndicator
 });
 
-const Borrow = Loadable({
-    loader: () =>
-        import(
-            /* webpackChunkName: "settings" */ "./components/Showcases/Borrow"
-        ),
-    loading: LoadingIndicator
-});
-
 const Htlc = Loadable({
     loader: () =>
         import(
@@ -582,8 +574,6 @@ class App extends React.Component {
                                     path="/block/:height/:txIndex"
                                     component={Block}
                                 />
-                                <Route path="/borrow" component={Borrow} />
-
                                 <Route path="/barter" component={Barter} />
                                 <Route
                                     path="/direct-debit"

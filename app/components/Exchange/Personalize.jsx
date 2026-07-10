@@ -638,22 +638,6 @@ class Personalize extends React.Component {
                         </div>
                     )}
                     {!this.props.tinyScreen && (
-                        <div
-                            className="grid-block no-overflow wrap shrink"
-                            style={{paddingBottom: "0.5em"}}
-                        >
-                            <div className="small-6">
-                                <h6 style={{margin: 9}}>
-                                    <Translate content="exchange.settings.title.settlements" />
-                                </h6>
-                            </div>
-                            <div className="small-6">
-                                {this._getGroupingOptions("open_settlement")}
-                            </div>
-                        </div>
-                    )}
-
-                    {!this.props.tinyScreen && (
                         <header>
                             <Translate content="exchange.settings.header.general" />
                         </header>

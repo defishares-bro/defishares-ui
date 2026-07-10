@@ -19,6 +19,7 @@ import {List} from "antd";
 import SearchInput from "../Utility/SearchInput";
 
 let accountStorage = ls("__graphene__");
+const DEFISHARES_CHAIN_PREFIX = "300a25f6";
 
 class Assets extends React.Component {
     constructor(props) {
@@ -26,7 +27,7 @@ class Assets extends React.Component {
 
         let chainID = Apis.instance().chain_id;
         if (chainID) chainID = chainID.substr(0, 8);
-        else chainID = "4018d784";
+        else chainID = DEFISHARES_CHAIN_PREFIX;
 
         this.state = {
             chainID,
@@ -36,8 +37,8 @@ class Assets extends React.Component {
             totalAssets:
                 typeof accountStorage.get(`totalAssets_${chainID}`) != "object"
                     ? accountStorage.get(`totalAssets_${chainID}`)
-                    : chainID && chainID === "4018d784"
-                    ? 3000
+                    : chainID && chainID === DEFISHARES_CHAIN_PREFIX
+                    ? 200
                     : 50, // mainnet has 3000+ assets, other chains may not have that many
             assetsFetched: 0,
             activeFilter: "market",
@@ -244,7 +245,7 @@ class Assets extends React.Component {
                             ? description.market
                             : coreAsset
                             ? coreAsset.get("symbol")
-                            : "BTS");
+                            : "DFS");
 
                     dataSource.push({
                         symbol: asset.symbol,
@@ -353,7 +354,7 @@ class Assets extends React.Component {
                             ? description.market
                             : coreAsset
                             ? coreAsset.get("symbol")
-                            : "BTS");
+                            : "DFS");
 
                     dataSource.push({
                         symbol: asset.symbol,
@@ -406,7 +407,7 @@ class Assets extends React.Component {
                             ? description.market
                             : coreAsset
                             ? coreAsset.get("symbol")
-                            : "BTS");
+                            : "DFS");
 
                     return {
                         asset,
