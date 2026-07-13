@@ -7,6 +7,23 @@ import {Apis} from "bitsharesjs-ws";
 import alt from "alt-instance";
 import SettingsStore from "stores/SettingsStore";
 
+const FAUCET_ACCOUNT_PATH = "/api/v1/accounts";
+
+function getFaucetAccountUrl() {
+    let faucetAddress = SettingsStore.getSetting("faucet_address") || "";
+    if (
+        typeof window !== "undefined" &&
+        window.location &&
+        window.location.protocol === "https:"
+    ) {
+        faucetAddress = faucetAddress.replace(/http:\/\//, "https://");
+    }
+
+    return faucetAddress.endsWith(FAUCET_ACCOUNT_PATH)
+        ? faucetAddress
+        : faucetAddress.replace(/\/+$/, "") + FAUCET_ACCOUNT_PATH;
+}
+
 class WalletActions {
     /** Restore and make active a new wallet_object. */
     restore(wallet_name = "default", wallet_object) {
@@ -104,45 +121,30 @@ class WalletActions {
             } else {
                 // using faucet
 
-                let faucetAddress = SettingsStore.getSetting("faucet_address");
-                if (
-                    window &&
-                    window.location &&
-                    window.location.protocol === "https:"
-                ) {
-                    faucetAddress = faucetAddress.replace(
-                        /http:\/\//,
-                        "https://"
-                    );
-                }
-
-                let create_account_promise = fetch(
-                    faucetAddress + "/api/v1/accounts",
-                    {
-                        method: "post",
-                        mode: "cors",
-                        headers: {
-                            Accept: "application/json",
-                            "Content-type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            account: {
-                                name: account_name,
-                                owner_key: owner_private
-                                    .toPublicKey()
-                                    .toPublicKeyString(),
-                                active_key: active_private
-                                    .toPublicKey()
-                                    .toPublicKeyString(),
-                                memo_key: memo_private
-                                    .toPublicKey()
-                                    .toPublicKeyString(),
-                                refcode: refcode,
-                                referrer: referrer
-                            }
-                        })
-                    }
-                )
+                let create_account_promise = fetch(getFaucetAccountUrl(), {
+                    method: "post",
+                    mode: "cors",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        account: {
+                            name: account_name,
+                            owner_key: owner_private
+                                .toPublicKey()
+                                .toPublicKeyString(),
+                            active_key: active_private
+                                .toPublicKey()
+                                .toPublicKeyString(),
+                            memo_key: memo_private
+                                .toPublicKey()
+                                .toPublicKeyString(),
+                            refcode: refcode,
+                            referrer: referrer
+                        }
+                    })
+                })
                     .then(r =>
                         r.json().then(res => {
                             if (!res || (res && res.error)) {
@@ -213,43 +215,31 @@ class WalletActions {
         } else {
             // using faucet
 
-            let faucetAddress = SettingsStore.getSetting("faucet_address");
-            if (
-                window &&
-                window.location &&
-                window.location.protocol === "https:"
-            ) {
-                faucetAddress = faucetAddress.replace(/http:\/\//, "https://");
-            }
-
-            let create_account_promise = fetch(
-                faucetAddress + "/api/v1/accounts",
-                {
-                    method: "post",
-                    mode: "cors",
-                    headers: {
-                        Accept: "application/json",
-                        "Content-type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        account: {
-                            name: account_name,
-                            owner_key: owner_private.private_key
-                                .toPublicKey()
-                                .toPublicKeyString(),
-                            active_key: active_private.private_key
-                                .toPublicKey()
-                                .toPublicKeyString(),
-                            memo_key: active_private.private_key
-                                .toPublicKey()
-                                .toPublicKeyString(),
-                            //"memo_key": memo_private.private_key.toPublicKey().toPublicKeyString(),
-                            refcode: refcode,
-                            referrer: referrer
-                        }
-                    })
-                }
-            ).then(r => r.json());
+            let create_account_promise = fetch(getFaucetAccountUrl(), {
+                method: "post",
+                mode: "cors",
+                headers: {
+                    Accept: "application/json",
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    account: {
+                        name: account_name,
+                        owner_key: owner_private.private_key
+                            .toPublicKey()
+                            .toPublicKeyString(),
+                        active_key: active_private.private_key
+                            .toPublicKey()
+                            .toPublicKeyString(),
+                        memo_key: active_private.private_key
+                            .toPublicKey()
+                            .toPublicKeyString(),
+                        //"memo_key": memo_private.private_key.toPublicKey().toPublicKeyString(),
+                        refcode: refcode,
+                        referrer: referrer
+                    }
+                })
+            }).then(r => r.json());
 
             return create_account_promise
                 .then(result => {

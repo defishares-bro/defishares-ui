@@ -88,6 +88,21 @@ module.exports = function(env) {
             __UI_API__: JSON.stringify(env.apiUrl),
             __TESTNET__: !!env.testnet,
             __DEPRECATED__: !!env.deprecated,
+            __FAUCET_URL__: JSON.stringify(
+                process.env.DEFISHARES_FAUCET_URL ||
+                    env.faucetUrl ||
+                    "https://api.defishares.org/faucet/api/v1/accounts"
+            ),
+            __TESTNET_FAUCET_URL__: JSON.stringify(
+                process.env.DEFISHARES_TESTNET_FAUCET_URL ||
+                    env.testnetFaucetUrl ||
+                    ""
+            ),
+            __FAUCET_REFERRER__: JSON.stringify(
+                process.env.DEFISHARES_FAUCET_REFERRER ||
+                    env.faucetReferrer ||
+                    ""
+            ),
             DEFAULT_SYMBOL: "DFS",
             __GIT_BRANCH__: JSON.stringify(git.branch()),
             __PERFORMANCE_DEVTOOL__: !!env.perf_dev

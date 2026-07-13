@@ -47,18 +47,26 @@ export function getWalletURL() {
  * @returns {{url: string, show: boolean}}
  */
 export function getFaucet() {
+    const faucetUrl =
+        typeof __FAUCET_URL__ !== "undefined" ? __FAUCET_URL__ : "";
+    const faucetReferrer =
+        typeof __FAUCET_REFERRER__ !== "undefined" ? __FAUCET_REFERRER__ : "";
     return {
-        url: "",
-        show: false,
+        url: faucetUrl,
+        show: !!faucetUrl,
         editable: false,
-        referrer: ""
+        referrer: faucetReferrer
     };
 }
 
 export function getTestFaucet() {
+    const faucetUrl =
+        typeof __TESTNET_FAUCET_URL__ !== "undefined"
+            ? __TESTNET_FAUCET_URL__
+            : "";
     return {
-        url: "",
-        show: false,
+        url: faucetUrl,
+        show: !!faucetUrl,
         editable: false
     };
 }
