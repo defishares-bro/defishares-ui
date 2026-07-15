@@ -2840,7 +2840,7 @@
         "free": "Free",
         "from": "보내는 사람",
         "header": "Transfer details",
-        "header_subheader": "Transfers are used for sending funds to other BitShares Account Holders",
+        "header_subheader": "Transfers are used for sending funds to other Defishares Account Holders",
         "header_subheader_propose": "Propose to send funds from one %(wallet_name)s account to another. The BY account is the account proposing the transaction.",
         "memo": "메모",
         "memo_unlock": "Unlock your wallet/account in order to see this memo",
