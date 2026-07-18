@@ -15,6 +15,8 @@ import asset_utils from "../../lib/common/asset_utils";
 import {BorrowModalView} from "./View/BorrowModalView";
 import debounceRender from "react-debounce-render";
 
+const DEFAULT_TARGET_COLLATERAL_RATIO = 2;
+
 /**
  *  Given an account and an asset id, render a modal allowing modification of a margin position for that asset
  *
@@ -54,11 +56,15 @@ class BorrowModalContent extends React.Component {
                 props.backingAssetObj
             );
 
-            let target_collateral_ratio = !isNaN(
+            let existingTargetCollateralRatio = !isNaN(
                 currentPosition.target_collateral_ratio
             )
                 ? currentPosition.target_collateral_ratio / 1000
                 : 0;
+            let target_collateral_ratio =
+                existingTargetCollateralRatio > 0
+                    ? existingTargetCollateralRatio
+                    : this._getDefaultTargetCollateralRatio();
 
             return {
                 debtAmount: debt ? debt.toString() : null,
@@ -66,11 +72,12 @@ class BorrowModalContent extends React.Component {
                 collateral_ratio: this._getCollateralRatio(debt, collateral),
                 target_collateral_ratio: target_collateral_ratio,
                 errors: this._getInitialErrors(),
-                useTargetCollateral: target_collateral_ratio > 0 ? true : false,
+                useTargetCollateral:
+                    existingTargetCollateralRatio > 0 ? true : false,
                 original_position: {
                     debt: debt,
                     collateral: collateral,
-                    target_collateral_ratio: target_collateral_ratio
+                    target_collateral_ratio: existingTargetCollateralRatio
                 },
                 unlockedInputType: "collateral",
                 isRatioLocked: true
@@ -80,7 +87,7 @@ class BorrowModalContent extends React.Component {
                 debtAmount: 0,
                 collateral: 0,
                 collateral_ratio: this._getInitialCollateralRatio(props),
-                target_collateral_ratio: this._getMaintenanceRatio(),
+                target_collateral_ratio: this._getDefaultTargetCollateralRatio(),
                 errors: this._getInitialErrors(),
                 useTargetCollateral: false,
                 original_position: {
@@ -597,6 +604,13 @@ class BorrowModalContent extends React.Component {
         return this._isPredictionMarket(props)
             ? 1
             : this._getMaintenanceRatio() * 2;
+    }
+
+    _getDefaultTargetCollateralRatio() {
+        return Math.max(
+            DEFAULT_TARGET_COLLATERAL_RATIO,
+            this._getMaintenanceRatio()
+        );
     }
 
     _getCollateralRatio(debt, collateral) {
