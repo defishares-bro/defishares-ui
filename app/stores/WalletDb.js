@@ -18,6 +18,10 @@ import AddressIndex from "stores/AddressIndex";
 import SettingsActions from "actions/SettingsActions";
 import {Notification} from "bitshares-ui-style-guide";
 import counterpart from "counterpart";
+import {
+    createBalanceClaimSignerError,
+    getBalanceClaimKeyStatus
+} from "../lib/chain/BalanceClaim";
 
 let aes_private = null;
 let _passwordKey = null;
@@ -62,6 +66,7 @@ class WalletDb extends BaseStore {
             "incrementBrainKeySequence",
             "saveKeys",
             "saveKey",
+            "updateImportedKeyAccounts",
             "setWalletModified",
             "setBackupDate",
             "setBrainkeyBackupDate",
@@ -108,24 +113,95 @@ class WalletDb extends BaseStore {
 
     decryptTcomb_PrivateKey(private_key_tcomb) {
         if (!private_key_tcomb) return null;
-        if (this.isLocked()) throw new Error("wallet locked");
-        if (_passwordKey && _passwordKey[private_key_tcomb.pubkey]) {
-            return _passwordKey[private_key_tcomb.pubkey];
-        }
-        let private_key_hex = aes_private.decryptHex(
-            private_key_tcomb.encrypted_key
+        const inMemoryKey =
+            _passwordKey && _passwordKey[private_key_tcomb.pubkey];
+        if (inMemoryKey) return inMemoryKey;
+
+        const keyStatus = getBalanceClaimKeyStatus(
+            private_key_tcomb,
+            false,
+            !!aes_private
         );
-        return PrivateKey.fromBuffer(new Buffer(private_key_hex, "hex"));
+        if (keyStatus === "locked") {
+            throw this._createPrivateKeyError(
+                "locked",
+                private_key_tcomb.pubkey
+            );
+        }
+        if (keyStatus === "invalid") {
+            throw this._createPrivateKeyError(
+                "invalid",
+                private_key_tcomb.pubkey
+            );
+        }
+
+        try {
+            let private_key_hex = aes_private.decryptHex(
+                private_key_tcomb.encrypted_key
+            );
+            return PrivateKey.fromBuffer(new Buffer(private_key_hex, "hex"));
+        } catch (error) {
+            throw this._createPrivateKeyError(
+                "invalid",
+                private_key_tcomb.pubkey
+            );
+        }
     }
 
     /** @return ecc/PrivateKey or null */
     getPrivateKey(public_key) {
-        if (_passwordKey) return _passwordKey[public_key];
         if (!public_key) return null;
         if (public_key.Q) public_key = public_key.toPublicKeyString();
+        if (_passwordKey && _passwordKey[public_key])
+            return _passwordKey[public_key];
         let private_key_tcomb = PrivateKeyStore.getTcomb_byPubkey(public_key);
         if (!private_key_tcomb) return null;
         return this.decryptTcomb_PrivateKey(private_key_tcomb);
+    }
+
+    _createPrivateKeyError(reason, public_key) {
+        const error = new Error("Private key is unavailable");
+        error.code = "BALANCE_CLAIM_KEY_ERROR";
+        error.reason = reason;
+        error.public_key = public_key;
+        return error;
+    }
+
+    _getBalanceClaimSigningKeys(signer_pubkeys) {
+        const keyErrors = [];
+        const privateKeys = {};
+        for (let public_key of signer_pubkeys) {
+            const privateKeyRecord = PrivateKeyStore.getTcomb_byPubkey(
+                public_key
+            );
+            const inMemoryKey = _passwordKey && _passwordKey[public_key];
+            const keyStatus = getBalanceClaimKeyStatus(
+                privateKeyRecord,
+                !!inMemoryKey,
+                !!aes_private
+            );
+            if (keyStatus) {
+                keyErrors.push({public_key, reason: keyStatus});
+                continue;
+            }
+
+            try {
+                const privateKey = this.getPrivateKey(public_key);
+                if (!privateKey) {
+                    keyErrors.push({public_key, reason: "missing"});
+                } else {
+                    privateKeys[public_key] = privateKey;
+                }
+            } catch (error) {
+                keyErrors.push({
+                    public_key,
+                    reason: error.reason || "invalid"
+                });
+            }
+        }
+
+        if (keyErrors.length) throw createBalanceClaimSignerError(keyErrors);
+        return privateKeys;
     }
 
     process_transaction(tr, signer_pubkeys, broadcast, extra_keys = []) {
@@ -148,24 +224,28 @@ class WalletDb extends BaseStore {
         return WalletUnlockActions.unlock()
             .then(() => {
                 AccountActions.tryToSetCurrentAccount();
+                const requestedSignerPubkeys = signer_pubkeys
+                    ? Array.isArray(signer_pubkeys)
+                        ? signer_pubkeys
+                        : Object.keys(signer_pubkeys)
+                    : [];
+                const signerPrivateKeys = requestedSignerPubkeys.length
+                    ? this._getBalanceClaimSigningKeys(requestedSignerPubkeys)
+                    : {};
                 return Promise.all([
                     tr.set_required_fees(),
                     tr.update_head_block()
                 ]).then(() => {
                     let signer_pubkeys_added = {};
-                    if (signer_pubkeys) {
+                    if (requestedSignerPubkeys.length) {
                         // Balance claims are by address, only the private
                         // key holder can know about these additional
                         // potential keys.
-                        let pubkeys = PrivateKeyStore.getPubkeys_having_PrivateKey(
-                            signer_pubkeys
-                        );
-                        if (!pubkeys.length)
-                            throw new Error("Missing signing key");
-
-                        for (let pubkey_string of pubkeys) {
-                            let private_key = this.getPrivateKey(pubkey_string);
-                            tr.add_signer(private_key, pubkey_string);
+                        for (let pubkey_string of requestedSignerPubkeys) {
+                            tr.add_signer(
+                                signerPrivateKeys[pubkey_string],
+                                pubkey_string
+                            );
                             signer_pubkeys_added[pubkey_string] = true;
                         }
                     }
@@ -226,6 +306,7 @@ class WalletDb extends BaseStore {
             })
             .catch(e => {
                 console.error(e);
+                throw e;
             });
     }
 
@@ -728,6 +809,31 @@ class WalletDb extends BaseStore {
         });
     }
 
+    updateImportedKeyAccounts(account_names_by_pubkey) {
+        const updates = Object.keys(account_names_by_pubkey || {});
+        if (!updates.length) return Promise.resolve();
+
+        const transaction = this.transaction_update_keys();
+        const private_keys_store = transaction.objectStore("private_keys");
+        for (let pubkey of updates) {
+            const private_key = PrivateKeyStore.getTcomb_byPubkey(pubkey);
+            if (!private_key) continue;
+
+            private_keys_store.put({
+                ...private_key,
+                import_account_names: account_names_by_pubkey[pubkey]
+            });
+            PrivateKeyStore.updateKeyAccountNames(
+                pubkey,
+                account_names_by_pubkey[pubkey]
+            );
+            ChainStore.getAccountRefsOfKey(pubkey);
+        }
+
+        this.setWalletModified(transaction);
+        return idb_helper.on_transaction_end(transaction);
+    }
+
     saveKeys(private_keys, transaction, public_key_string) {
         let promises = [];
         for (let private_key_record of private_keys) {
@@ -754,7 +860,6 @@ class WalletDb extends BaseStore {
         let private_cipherhex = aes_private.encryptToHex(
             private_key.toBuffer()
         );
-        let wallet = this.state.wallet;
         if (!public_key_string) {
             //S L O W
             // console.log('WARN: public key was not provided, this may incur slow performance')

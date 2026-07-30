@@ -9,6 +9,7 @@ import {Button} from "bitshares-ui-style-guide";
 import PaginatedList from "components/Utility/PaginatedList";
 import SearchInput from "../Utility/SearchInput";
 import counterpart from "counterpart";
+import AccountBalanceClaims from "./AccountBalanceClaims";
 
 class AccountVesting extends React.Component {
     constructor(props) {
@@ -412,6 +413,11 @@ class AccountVesting extends React.Component {
                         pageSize={10}
                     />
                 </div>
+                {this.props.isMyAccount ? (
+                    <AccountBalanceClaims
+                        accountId={this.props.account.get("id")}
+                    />
+                ) : null}
             </div>
         );
     }

@@ -30,6 +30,7 @@ class PrivateKeyStore extends BaseStore {
             "getTcomb_byPubkey",
             "getPubkeys_having_PrivateKey",
             "addPrivateKeys_noindex",
+            "updateKeyAccountNames",
             "decodeMemo",
             "setPasswordLoginKey"
         );
@@ -189,6 +190,22 @@ class PrivateKeyStore extends BaseStore {
         this.setState({keys});
         this.binaryBackupRecommended();
         return duplicate_count;
+    }
+
+    updateKeyAccountNames(pubkey, account_names) {
+        const private_key = this.state.keys.get(pubkey);
+        if (!private_key) return false;
+
+        this.setState({
+            keys: this.state.keys.set(
+                pubkey,
+                PrivateKeyTcomb({
+                    ...private_key,
+                    import_account_names: account_names
+                })
+            )
+        });
+        return true;
     }
 
     binaryBackupRecommended() {

@@ -26,7 +26,8 @@ module.exports = function(env) {
             loader: "style-loader"
         },
         {
-            loader: "css-loader"
+            loader: "css-loader",
+            options: {esModule: false}
         },
         {
             loader: "postcss-loader"
@@ -38,7 +39,8 @@ module.exports = function(env) {
             loader: "style-loader"
         },
         {
-            loader: "css-loader"
+            loader: "css-loader",
+            options: {esModule: false}
         },
         {
             loader: "postcss-loader"
@@ -155,12 +157,12 @@ module.exports = function(env) {
         // WRAP INTO CSS FILE
         cssLoaders = [
             {loader: MiniCssExtractPlugin.loader},
-            {loader: "css-loader"},
+            {loader: "css-loader", options: {esModule: false}},
             {loader: "postcss-loader"}
         ];
         scssLoaders = [
             {loader: MiniCssExtractPlugin.loader},
-            {loader: "css-loader"},
+            {loader: "css-loader", options: {esModule: false}},
             {loader: "postcss-loader"},
             {
                 loader: "sass-loader",
@@ -433,10 +435,10 @@ module.exports = function(env) {
                     test: /\.woff$/,
                     use: [
                         {
-                            loader: "url-loader",
+                            loader: "file-loader",
                             options: {
-                                limit: 100000,
-                                mimetype: "application/font-woff"
+                                name: "[name].[contenthash:20].woff",
+                                esModule: false
                             }
                         }
                     ]

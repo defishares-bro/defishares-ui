@@ -11,6 +11,7 @@ import {Apis} from "bitsharesjs-ws";
 import AccountRefsStore from "stores/AccountRefsStore";
 import AddressIndex from "stores/AddressIndex";
 import ls from "common/localStorage";
+import {isDuplicateStoreError} from "restore/IndexedDbErrors";
 
 let ss = ls("__graphene__");
 
@@ -45,6 +46,7 @@ class AccountStore extends BaseStore {
             "onCreateAccount",
             "getMyAccounts",
             "isMyAccount",
+            "linkImportedAccounts",
             "getMyAuthorityForAccount",
             "isMyKey",
             "reset",
@@ -74,6 +76,7 @@ class AccountStore extends BaseStore {
         this.chainStoreUpdate = this.chainStoreUpdate.bind(this);
         this._getStorageKey = this._getStorageKey.bind(this);
         this.setWallet = this.setWallet.bind(this);
+        this._linkAccountPromises = new Map();
     }
 
     _migrateUnfollowedAccounts(state) {
@@ -413,7 +416,12 @@ class AccountStore extends BaseStore {
                         this.isMyAccount(account) &&
                         !isAlreadyLinked
                     ) {
-                        this._linkAccount(account.get("name"));
+                        this._linkAccount(account.get("name")).catch(error => {
+                            console.error(
+                                "[AccountStore.js] Failed to link referenced account",
+                                error
+                            );
+                        });
                     }
                     if (
                         account &&
@@ -485,6 +493,20 @@ class AccountStore extends BaseStore {
 
         /* In wallet mode, return a sorted list of all the active accounts */
         return accounts.sort();
+    }
+
+    linkImportedAccounts(account_names) {
+        const uniqueNames = Array.from(new Set(account_names || []));
+        return Promise.all(
+            uniqueNames.map(account_name =>
+                FetchChain("getAccount", account_name).then(account => {
+                    if (account && this.isMyAccount(account)) {
+                        return this._linkAccount(account.get("name"));
+                    }
+                    return account;
+                })
+            )
+        );
     }
 
     /**
@@ -703,28 +725,53 @@ class AccountStore extends BaseStore {
         if (!ChainValidation.is_account_name(name, true))
             throw new Error("Invalid account name: " + name);
 
-        // Link
         const linkedEntry = {
             name,
             chainId: Apis.instance().chain_id
         };
-        try {
-            iDB.add_to_store("linked_accounts", linkedEntry);
+        const linkKey = linkedEntry.chainId + ":" + name;
+        const alreadyLinked = this.state.linkedAccounts.some(
+            account => account.get("name") === name
+        );
+
+        const syncState = () => {
             this.state.linkedAccounts = this.state.linkedAccounts.add(
                 Immutable.fromJS(linkedEntry)
-            ); // Keep the local linkedAccounts in sync with the db
+            );
             if (!this.state.myHiddenAccounts.has(name))
                 this.state.myActiveAccounts = this.state.myActiveAccounts.add(
                     name
                 );
 
-            // Update current account if only one account is linked
             if (this.state.myActiveAccounts.size === 1) {
                 this.setCurrentAccount(name);
             }
-        } catch (err) {
-            console.error(err);
-        }
+            return linkedEntry;
+        };
+
+        if (alreadyLinked) return Promise.resolve(syncState());
+
+        const pendingLink = this._linkAccountPromises.get(linkKey);
+        if (pendingLink) return pendingLink;
+
+        const linkPromise = iDB
+            .add_to_store("linked_accounts", linkedEntry)
+            .then(syncState)
+            .catch(error => {
+                // IndexedDB add() is intentionally used elsewhere for new
+                // records. Linking an account is different: it is a
+                // repeatable discovery step and must be idempotent.
+                if (isDuplicateStoreError(error)) return syncState();
+                throw error;
+            })
+            .finally(() => {
+                if (this._linkAccountPromises.get(linkKey) === linkPromise) {
+                    this._linkAccountPromises.delete(linkKey);
+                }
+            });
+
+        this._linkAccountPromises.set(linkKey, linkPromise);
+        return linkPromise;
     }
 
     _unlinkAccount(name) {

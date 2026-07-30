@@ -3,6 +3,7 @@ import Translate from "react-translate-component";
 import SettingsActions from "actions/SettingsActions";
 import counterpart from "counterpart";
 import {Button, Notification} from "bitshares-ui-style-guide";
+import RestoreAsyncGuard from "restore/RestoreAsyncGuard";
 
 class RestoreFavorites extends React.Component {
     constructor(props) {
@@ -12,14 +13,28 @@ class RestoreFavorites extends React.Component {
             json: null,
             error: null
         };
+        this._asyncGuard = new RestoreAsyncGuard();
+    }
+
+    componentDidMount() {
+        this._asyncGuard.mount();
+    }
+
+    componentWillUnmount() {
+        this._asyncGuard.unmount();
     }
 
     upload(evt) {
-        this.setState({error: false, json: null});
+        let file = evt && evt.target && evt.target.files[0];
+        if (!file) return;
 
-        let file = evt.target.files[0];
+        const uploadId = this._asyncGuard.invalidate();
         let reader = new FileReader();
+        this._asyncGuard.setReader(reader);
+        this.setState({error: false, json: null});
         reader.onload = evt => {
+            this._asyncGuard.clearReader(reader);
+            if (!this._asyncGuard.isActive(uploadId)) return;
             let contents = evt.target.result;
 
             try {
@@ -36,6 +51,14 @@ class RestoreFavorites extends React.Component {
                 this.setState({json});
                 // this.finish();
             } catch (message) {
+                if (this._asyncGuard.isActive(uploadId)) {
+                    this.setState({error: true});
+                }
+            }
+        };
+        reader.onerror = () => {
+            this._asyncGuard.clearReader(reader);
+            if (this._asyncGuard.isActive(uploadId)) {
                 this.setState({error: true});
             }
         };
@@ -66,7 +89,7 @@ class RestoreFavorites extends React.Component {
             <div>
                 <input
                     type="file"
-                    id="file_input"
+                    id="restore_favorites_file_input"
                     accept=".json"
                     style={{
                         border: "solid",

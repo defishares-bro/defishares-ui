@@ -110,7 +110,7 @@ export default class RestoreSettings extends React.Component {
                     {options}
                 </Select>
 
-                {content}
+                <div key={types[restoreType]}>{content}</div>
             </div>
         );
     }

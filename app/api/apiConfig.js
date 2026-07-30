@@ -133,6 +133,10 @@ export const settingsAPIs = {
             location: "DefiShares Public Testnet"
         },
         {
+            url: "wss://api.defishares.org/snapshot-ws/",
+            location: "DefiShares Snapshot-only Testnet"
+        },
+        {
             url: "ws://127.0.0.1:8090",
             location: "Locally hosted"
         }

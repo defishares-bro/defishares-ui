@@ -18,7 +18,8 @@ const BITSHARES_TESTNET_CHAIN_PREFIX = "39f5e2ed";
 const CORE_ASSET = "DFS";
 const LEGACY_DEFISHARES_API_NODES = new Set([
     "ws://127.0.0.1:8090",
-    "ws://43.161.222.116/ws/"
+    "ws://43.161.222.116/ws/",
+    "wss://api.defishares.org/snapshot-ws/"
 ]);
 
 const STORAGE_KEY = "__graphene__";

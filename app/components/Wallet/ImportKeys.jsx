@@ -3,6 +3,7 @@ import {connect} from "alt-react";
 import cname from "classnames";
 import {PrivateKey, Aes, PublicKey, FetchChain, hash} from "bitsharesjs";
 import AccountApi from "api/accountApi";
+import AccountStore from "stores/AccountStore";
 import {ChainConfig} from "bitsharesjs-ws";
 import PrivateKeyStore from "stores/PrivateKeyStore";
 import WalletUnlockActions from "actions/WalletUnlockActions";
@@ -22,6 +23,11 @@ import {Notification} from "bitshares-ui-style-guide";
 import GenesisFilter from "chain/GenesisFilter";
 
 import {Button, Input} from "bitshares-ui-style-guide";
+import RestoreAsyncGuard from "restore/RestoreAsyncGuard";
+import {
+    mergeImportedAccountNames,
+    uniqueAccountNames
+} from "restore/ImportedKeyAccounts";
 
 require("./ImportKeys.scss");
 
@@ -40,11 +46,30 @@ class ImportKeys extends Component {
         this.state = this._getInitialState();
 
         this._renderBalanceClaims = this._renderBalanceClaims.bind(this);
+        this._asyncGuard = new RestoreAsyncGuard();
+        this._accountLookups = new Map();
     }
 
     static defaultProps = {
         privateKey: true
     };
+
+    componentDidMount() {
+        this._asyncGuard.mount();
+    }
+
+    componentWillUnmount() {
+        this._asyncGuard.unmount();
+        ImportKeysStore.importing(false);
+    }
+
+    _isAsyncActive(version) {
+        return this._asyncGuard.isActive(version);
+    }
+
+    _invalidateAsyncWork() {
+        return this._asyncGuard.invalidate();
+    }
 
     _getInitialState(keep_file_name = false) {
         return {
@@ -73,8 +98,13 @@ class ImportKeys extends Component {
 
     reset(e, keep_file_name) {
         if (e) e.preventDefault();
+        const version = this._invalidateAsyncWork();
+        this._accountLookups.clear();
         let state = this._getInitialState(keep_file_name);
-        this.setState(state, () => this.updateOnChange());
+        this.setState(state, () => {
+            if (this._isAsyncActive(version)) this.updateOnChange();
+        });
+        return version;
     }
 
     onWif(event) {
@@ -84,8 +114,7 @@ class ImportKeys extends Component {
     }
 
     onCancel(e) {
-        if (e) e.preventDefault();
-        this.setState(this._getInitialState());
+        this.reset(e);
     }
 
     updateOnChange() {
@@ -107,10 +136,15 @@ class ImportKeys extends Component {
     }
 
     upload(evt) {
-        this.reset(null, true);
-        let file = evt.target.files[0];
+        let file = evt && evt.target && evt.target.files[0];
+        if (!file) return;
+
+        const version = this.reset(null, true);
         let reader = new FileReader();
+        this._asyncGuard.setReader(reader);
         reader.onload = evt => {
+            this._asyncGuard.clearReader(reader);
+            if (!this._isAsyncActive(version)) return;
             let contents = evt.target.result;
             try {
                 let json_contents;
@@ -122,8 +156,10 @@ class ImportKeys extends Component {
                         json_contents,
                         file.name,
                         update_state => {
+                            if (!this._isAsyncActive(version)) return;
                             // console.log("update_state", update_state)
                             this.setState(update_state, () => {
+                                if (!this._isAsyncActive(version)) return;
                                 if (update_state.genesis_filter_finished) {
                                     // try empty password, also display "Enter import file password"
                                     this._passwordCheck();
@@ -141,18 +177,31 @@ class ImportKeys extends Component {
                         if (!this.addByPattern(contents)) throw ee;
                     }
                     // try empty password, also display "Enter import file password"
-                    this._passwordCheck();
+                    if (this._isAsyncActive(version)) this._passwordCheck();
                 }
             } catch (message) {
                 console.error("... ImportKeys upload error", message);
-                this.setState({import_file_message: message});
+                if (this._isAsyncActive(version)) {
+                    this.setState({import_file_message: message});
+                }
             }
+        };
+        reader.onerror = error => {
+            this._asyncGuard.clearReader(reader);
+            if (!this._isAsyncActive(version)) return;
+            console.error("... ImportKeys file read error", error);
+            this.setState({import_file_message: "Unable to read import file"});
         };
         reader.readAsText(file);
     }
 
     /** BTS 1.0 client wallet_export_keys format. */
-    _parseImportKeyUpload(json_contents, file_name, update_state) {
+    _parseImportKeyUpload(
+        json_contents,
+        file_name,
+        update_state,
+        operationVersion = this._asyncGuard.version
+    ) {
         let password_checksum, unfiltered_account_keys;
         try {
             password_checksum = json_contents.password_checksum;
@@ -172,6 +221,7 @@ class ImportKeys extends Component {
 
         let genesis_filter = new GenesisFilter();
         if (!genesis_filter.isAvailable()) {
+            if (!this._isAsyncActive(operationVersion)) return;
             update_state({
                 password_checksum,
                 account_keys: unfiltered_account_keys,
@@ -180,82 +230,79 @@ class ImportKeys extends Component {
             });
             return;
         }
-        this.setState(
-            {genesis_filter_initalizing: true},
-            () =>
-                // setTimeout(()=>
-                genesis_filter.init(() => {
-                    let filter_status = this.state.genesis_filter_status;
+        this.setState({genesis_filter_initalizing: true}, () => {
+            if (!this._isAsyncActive(operationVersion)) return;
+            // setTimeout(()=>
+            genesis_filter.init(() => {
+                if (!this._isAsyncActive(operationVersion)) return;
+                let filter_status = this.state.genesis_filter_status;
 
-                    // FF < version 41 does not support worker threads internals (like blob urls)
-                    // let GenesisFilterWorker = require("worker-loader!workers/GenesisFilterWorker")
-                    // let worker = new GenesisFilterWorker
-                    // worker.postMessage({
-                    //     account_keys: unfiltered_account_keys,
-                    //     bloom_filter: genesis_filter.bloom_filter
-                    // })
-                    // worker.onmessage = event => { try {
-                    //     let { status, account_keys } = event.data
-                    //     // ...
-                    // } catch( e ) { console.error('GenesisFilterWorker', e) }}
+                // FF < version 41 does not support worker threads internals (like blob urls)
+                // let GenesisFilterWorker = require("worker-loader!workers/GenesisFilterWorker")
+                // let worker = new GenesisFilterWorker
+                // worker.postMessage({
+                //     account_keys: unfiltered_account_keys,
+                //     bloom_filter: genesis_filter.bloom_filter
+                // })
+                // worker.onmessage = event => { try {
+                //     let { status, account_keys } = event.data
+                //     // ...
+                // } catch( e ) { console.error('GenesisFilterWorker', e) }}
 
-                    let account_keys = unfiltered_account_keys;
-                    genesis_filter.filter(account_keys, status => {
-                        //console.log("import filter", status)
-                        if (status.error === "missing_public_keys") {
-                            console.error(
-                                "un-released format, just for testing"
-                            );
-                            update_state({
-                                password_checksum,
-                                account_keys: unfiltered_account_keys,
-                                genesis_filter_finished: true,
-                                genesis_filtering: false
-                            });
-                            return;
-                        }
-                        if (status.success) {
-                            // let { account_keys } = event.data // if using worker thread
-                            update_state({
-                                password_checksum,
-                                account_keys,
-                                genesis_filter_finished: true,
-                                genesis_filtering: false
-                            });
-                            return;
-                        }
-                        if (status.initalizing !== undefined) {
-                            update_state({
-                                genesis_filter_initalizing: status.initalizing,
-                                genesis_filtering: true
-                            });
-                            return;
-                        }
-                        if (status.importing === undefined) {
-                            // programmer error
-                            console.error("unknown status", status);
-                            return;
-                        }
-                        if (!filter_status.length)
-                            // first account
-                            filter_status.push(status);
-                        else {
-                            let last_account_name =
-                                filter_status[filter_status.length - 1]
-                                    .account_name;
-                            if (last_account_name === status.account_name)
-                                // update same account
-                                filter_status[
-                                    filter_status.length - 1
-                                ] = status;
-                            // new account
-                            else filter_status.push(status);
-                        }
-                        update_state({genesis_filter_status: filter_status});
-                    });
-                })
+                let account_keys = unfiltered_account_keys;
+                genesis_filter.filter(account_keys, status => {
+                    if (!this._isAsyncActive(operationVersion)) return;
+                    //console.log("import filter", status)
+                    if (status.error === "missing_public_keys") {
+                        console.error("un-released format, just for testing");
+                        update_state({
+                            password_checksum,
+                            account_keys: unfiltered_account_keys,
+                            genesis_filter_finished: true,
+                            genesis_filtering: false
+                        });
+                        return;
+                    }
+                    if (status.success) {
+                        // let { account_keys } = event.data // if using worker thread
+                        update_state({
+                            password_checksum,
+                            account_keys,
+                            genesis_filter_finished: true,
+                            genesis_filtering: false
+                        });
+                        return;
+                    }
+                    if (status.initalizing !== undefined) {
+                        update_state({
+                            genesis_filter_initalizing: status.initalizing,
+                            genesis_filtering: true
+                        });
+                        return;
+                    }
+                    if (status.importing === undefined) {
+                        // programmer error
+                        console.error("unknown status", status);
+                        return;
+                    }
+                    if (!filter_status.length)
+                        // first account
+                        filter_status.push(status);
+                    else {
+                        let last_account_name =
+                            filter_status[filter_status.length - 1]
+                                .account_name;
+                        if (last_account_name === status.account_name)
+                            // update same account
+                            filter_status[filter_status.length - 1] = status;
+                        // new account
+                        else filter_status.push(status);
+                    }
+                    update_state({genesis_filter_status: filter_status});
+                });
+            });
             //, 100)
-        );
+        });
     }
 
     /**
@@ -405,9 +452,7 @@ class ImportKeys extends Component {
         let format_error1_once = true;
         for (let account of this.state.account_keys) {
             if (!account.encrypted_private_keys) {
-                let error = `Account ${
-                    account.account_name
-                } missing encrypted_private_keys`;
+                let error = `Account ${account.account_name} missing encrypted_private_keys`;
                 console.error(error);
                 if (format_error1_once) {
                     Notification.error({
@@ -519,7 +564,9 @@ class ImportKeys extends Component {
                 import_password_message: null,
                 password_checksum: null
             },
-            () => this.updateOnChange()
+            () => {
+                if (this._asyncGuard.mounted) this.updateOnChange();
+            }
         );
     }
 
@@ -533,11 +580,49 @@ class ImportKeys extends Component {
             dups[public_key_string] = true;
         }
         if (Object.keys(this.state.imported_keys_public).length === 0) {
-            Notification.error({
-                message: counterpart.translate(
-                    "notifications.import_keys_already_imported"
-                )
-            });
+            ImportKeysStore.importing(true);
+            Promise.all(Array.from(this._accountLookups.values()))
+                .then(() => {
+                    const accountNamesByPubkey = {};
+                    Object.keys(dups).forEach(pubkey => {
+                        const privateKeyRecord = Object.keys(
+                            this.state.keys_to_account
+                        )
+                            .map(key => this.state.keys_to_account[key])
+                            .find(
+                                record => record.public_key_string === pubkey
+                            );
+                        accountNamesByPubkey[pubkey] =
+                            (privateKeyRecord &&
+                                privateKeyRecord.account_names) ||
+                            [];
+                    });
+                    return WalletDb.updateImportedKeyAccounts(
+                        accountNamesByPubkey
+                    );
+                })
+                .then(() => {
+                    ImportKeysStore.importing(false);
+                    if (!this._asyncGuard.mounted) return;
+                    Notification.success({
+                        message: counterpart.translate(
+                            "wallet.import_key_success",
+                            {count: Object.keys(dups).length}
+                        )
+                    });
+                    this.reset();
+                    this.setState({importSuccess: true});
+                })
+                .catch(error => {
+                    ImportKeysStore.importing(false);
+                    if (!this._asyncGuard.mounted) return;
+                    Notification.error({
+                        message: counterpart.translate(
+                            "notifications.import_keys_error_unknown",
+                            {error_msg: error.message || error}
+                        )
+                    });
+                });
             return;
         }
         let keys_to_account = this.state.keys_to_account;
@@ -550,60 +635,87 @@ class ImportKeys extends Component {
         }
         WalletUnlockActions.unlock()
             .then(() => {
+                if (!this._asyncGuard.mounted) return;
                 ImportKeysStore.importing(true);
                 // show the loading indicator
-                setTimeout(() => this.saveImport(), 200);
+                this._asyncGuard.setTimeout(
+                    setTimeout(() => {
+                        this._asyncGuard.timeout = null;
+                        if (this._asyncGuard.mounted) this.saveImport();
+                        else ImportKeysStore.importing(false);
+                    }, 200)
+                );
             })
             .catch(() => {});
     }
 
     saveImport() {
-        let keys_to_account = this.state.keys_to_account;
-        let private_key_objs = [];
-        for (let private_plainhex of Object.keys(keys_to_account)) {
-            let {account_names, public_key_string} = keys_to_account[
-                private_plainhex
-            ];
-            private_key_objs.push({
-                private_plainhex,
-                import_account_names: account_names,
-                public_key_string
-            });
-        }
-        this.reset();
-        WalletDb.importKeysWorker(private_key_objs)
-            .then(result => {
-                ImportKeysStore.importing(false);
-                let import_count = private_key_objs.length;
+        if (!this._asyncGuard.mounted) return;
+        Promise.all(Array.from(this._accountLookups.values()))
+            .then(() => {
+                if (!this._asyncGuard.mounted) return;
 
-                Notification.success({
-                    message: counterpart.translate(
-                        "wallet.import_key_success",
-                        {
-                            count: import_count
-                        }
-                    )
-                });
+                let keys_to_account = this.state.keys_to_account;
+                let private_key_objs = [];
+                for (let private_plainhex of Object.keys(keys_to_account)) {
+                    let {account_names, public_key_string} = keys_to_account[
+                        private_plainhex
+                    ];
+                    private_key_objs.push({
+                        private_plainhex,
+                        import_account_names: account_names,
+                        public_key_string
+                    });
+                }
+                this.reset();
+                const version = this._asyncGuard.version;
+                return WalletDb.importKeysWorker(private_key_objs)
+                    .then(result => {
+                        ImportKeysStore.importing(false);
+                        if (!this._isAsyncActive(version)) return;
+                        let import_count = private_key_objs.length;
 
-                this.setState({
-                    importSuccess: true
-                });
-                // this.onCancel() // back to claim balances
+                        Notification.success({
+                            message: counterpart.translate(
+                                "wallet.import_key_success",
+                                {
+                                    count: import_count
+                                }
+                            )
+                        });
+
+                        this.setState({
+                            importSuccess: true
+                        });
+                        // this.onCancel() // back to claim balances
+                    })
+                    .catch(error => {
+                        console.log("error:", error);
+                        ImportKeysStore.importing(false);
+                        if (!this._isAsyncActive(version)) return;
+                        let message = error;
+                        try {
+                            message = error.target.error.message;
+                        } catch (e) {}
+
+                        Notification.error({
+                            message: counterpart.translate(
+                                "notifications.import_keys_error_unknown",
+                                {
+                                    error_msg: message
+                                }
+                            )
+                        });
+                    });
             })
             .catch(error => {
-                console.log("error:", error);
                 ImportKeysStore.importing(false);
-                let message = error;
-                try {
-                    message = error.target.error.message;
-                } catch (e) {}
-
+                if (!this._asyncGuard.mounted) return;
+                console.error("Error resolving imported key accounts", error);
                 Notification.error({
                     message: counterpart.translate(
                         "notifications.import_keys_error_unknown",
-                        {
-                            error_msg: message
-                        }
+                        {error_msg: error.message || error}
                     )
                 });
             });
@@ -641,23 +753,42 @@ class ImportKeys extends Component {
                     public_key_string
                 };
 
-                let accountName = [];
-                AccountApi.lookupAccountByPublicKey(public_key_string).then(
-                    async result => {
-                        let batch;
-                        batch = result[0].map(value => {
-                            return FetchChain("getAccount", value);
-                        });
-                        let accountNames = await Promise.all(batch);
-                        accountNames.map(value => {
-                            let name = value.get("name");
-                            if (accountName.indexOf(name) === -1) {
-                                accountName.push(name);
-                            }
-                        });
-                        this.setState({associatedAccount: accountName});
-                    }
-                );
+                const version = this._asyncGuard.version;
+                const accountLookup = AccountApi.lookupAccountByPublicKey(
+                    public_key_string
+                )
+                    .then(result => {
+                        if (!this._isAsyncActive(version)) return null;
+                        let batch = (result && result[0]
+                            ? result[0]
+                            : []
+                        ).map(value => FetchChain("getAccount", value));
+                        return Promise.all(batch);
+                    })
+                    .then(accountNames => {
+                        if (!accountNames || !this._isAsyncActive(version)) {
+                            return [];
+                        }
+                        const names = uniqueAccountNames(accountNames);
+                        mergeImportedAccountNames(
+                            this.state.keys_to_account[private_plainhex],
+                            names
+                        );
+                        this.setState({associatedAccount: names});
+                        return AccountStore.linkImportedAccounts(names).then(
+                            () => names
+                        );
+                    })
+                    .catch(error => {
+                        if (this._isAsyncActive(version)) {
+                            console.error(
+                                "Error looking up imported key account",
+                                error
+                            );
+                        }
+                        return [];
+                    });
+                this._accountLookups.set(private_plainhex, accountLookup);
 
                 count++;
             } catch (e) {
@@ -909,7 +1040,7 @@ class ImportKeys extends Component {
                                         </label>
                                         <input
                                             type="file"
-                                            id="file_input"
+                                            id="restore_import_file_input"
                                             accept=".json"
                                             style={{
                                                 border: "solid",
@@ -1026,18 +1157,15 @@ class ImportKeys extends Component {
     }
 }
 
-ImportKeys = connect(
-    ImportKeys,
-    {
-        listenTo() {
-            return [ImportKeysStore];
-        },
-        getProps() {
-            return {
-                importing: ImportKeysStore.getState().importing
-            };
-        }
+ImportKeys = connect(ImportKeys, {
+    listenTo() {
+        return [ImportKeysStore];
+    },
+    getProps() {
+        return {
+            importing: ImportKeysStore.getState().importing
+        };
     }
-);
+});
 
 export default ImportKeys;

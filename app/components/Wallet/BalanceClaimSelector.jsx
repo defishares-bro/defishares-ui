@@ -9,12 +9,38 @@ import FormattedAsset from "components/Utility/FormattedAsset";
 import Translate from "react-translate-component";
 
 class BalanceClaimSelector extends Component {
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if (nextProps.claim_account_name)
-            this.onClaimAccount(
-                nextProps.claim_account_name,
-                nextProps.checked
-            );
+    constructor(props) {
+        super(props);
+        this.autoSelectTimer = null;
+    }
+
+    componentDidUpdate(prevProps) {
+        const claimAccountName = this.props.claim_account_name;
+        if (
+            claimAccountName &&
+            !this.props.checked.size &&
+            (prevProps.claim_account_name !== this.props.claim_account_name ||
+                prevProps.balances !== this.props.balances) &&
+            !this.autoSelectTimer
+        ) {
+            this.autoSelectTimer = setTimeout(() => {
+                this.autoSelectTimer = null;
+                if (
+                    this.props.claim_account_name !== claimAccountName ||
+                    this.props.checked.size
+                )
+                    return;
+
+                this.onClaimAccount(claimAccountName, this.props.checked);
+            }, 0);
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.autoSelectTimer) {
+            clearTimeout(this.autoSelectTimer);
+            this.autoSelectTimer = null;
+        }
     }
 
     render() {
@@ -112,14 +138,24 @@ class BalanceClaimSelector extends Component {
         // only if nothing is selected (play it safe)
         if (checked.size) return;
         let index = -1;
+        let matchedAccount = false;
         this.props.total_by_account_asset.forEach((v, k) => {
             index++;
             let name = k.get(0);
             if (name === claim_account_name) {
+                matchedAccount = true;
                 if (v.unclaimed || v.vesting.unclaimed)
                     checked = checked.set(index, v.balances);
             }
         });
+        if (!matchedAccount) {
+            let fallbackIndex = -1;
+            this.props.total_by_account_asset.forEach(v => {
+                fallbackIndex++;
+                if (v.unclaimed || v.vesting.unclaimed)
+                    checked = checked.set(fallbackIndex, v.balances);
+            });
+        }
         if (checked.size)
             BalanceClaimActiveActions.setSelectedBalanceClaims(checked);
     }

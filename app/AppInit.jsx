@@ -26,6 +26,8 @@ import {HashRouter, BrowserRouter} from "react-router-dom";
 
 const Router = __HASH_HISTORY__ ? HashRouter : BrowserRouter;
 const DEFISHARES_ADDRESS_PREFIX = "DFS";
+const DEFISHARES_CHAIN_ID =
+    "c2b353a339cd3a997d09106e83948e7d9e9fbfd7cba1874ac80113487ffdfcc4";
 
 // DEPRECATED / WARNING: this is deactivated because there is a race condition for some components when log is saved,
 //                       since it calls setState. If the subcomponent does not have a tailored rerendering logic, this may a WSOD
@@ -55,6 +57,12 @@ class AppInit extends React.Component {
     constructor() {
         super();
 
+        ChainConfig.networks.DefiShares = {
+            core_asset: "DFS",
+            address_prefix: DEFISHARES_ADDRESS_PREFIX,
+            chain_id: DEFISHARES_CHAIN_ID
+        };
+        ChainConfig.core_asset = "DFS";
         ChainConfig.address_prefix = DEFISHARES_ADDRESS_PREFIX;
 
         this.state = {
