@@ -8,7 +8,7 @@ import SettingsStore from "stores/SettingsStore";
 import MarketsStore from "stores/MarketsStore";
 import MarketsTable from "./MarketsTable";
 
-const DEFISHARES_CHAIN_PREFIX = "300a25f6";
+const DEFISHARES_CHAIN_PREFIX = "7089639a";
 
 class StarredMarkets extends React.Component {
     render() {

@@ -23,7 +23,8 @@ const COMMITTEE_KEY = "committee";
 
 class AccountVoting extends React.Component {
     static propTypes = {
-        initialBudget: ChainTypes.ChainObject.isRequired,
+        // New networks may not create worker budget objects until workers are enabled.
+        initialBudget: ChainTypes.ChainObject,
         globalObject: ChainTypes.ChainObject.isRequired,
         proxy: ChainTypes.ChainAccount.isRequired
     };
@@ -48,7 +49,9 @@ class AccountVoting extends React.Component {
             committee: null,
             vote_ids: Immutable.Set(),
             proxy_vote_ids: Immutable.Set(),
-            lastBudgetObject: props.initialBudget.get("id"),
+            lastBudgetObject: props.initialBudget
+                ? props.initialBudget.get("id")
+                : null,
             all_witnesses: Immutable.List(),
             all_committee: Immutable.List(),
             hideLegacyProposals: true,
@@ -478,6 +481,13 @@ class AccountVoting extends React.Component {
 
     getBudgetObject() {
         let {lastBudgetObject} = this.state;
+        if (!lastBudgetObject || !/^2\.13\.\d+$/.test(lastBudgetObject)) {
+            if (lastBudgetObject !== null) {
+                this.setState({lastBudgetObject: null});
+            }
+            return;
+        }
+
         let budgetObject;
         budgetObject = ChainStore.getObject(lastBudgetObject);
         let idIndex = parseInt(lastBudgetObject.split(".")[2], 10);
@@ -523,6 +533,12 @@ class AccountVoting extends React.Component {
                 }
             });
         } else {
+            if (idIndex <= 1) {
+                // Some chains have no worker budget objects at all. Voting still
+                // works; only worker budget estimates are unavailable.
+                this.setState({lastBudgetObject: null});
+                return;
+            }
             // The object does not exist, decrement the ID
             let newID = `2.13.${idIndex - 1}`;
             FetchChainObjects(

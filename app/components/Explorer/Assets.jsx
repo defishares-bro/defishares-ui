@@ -19,7 +19,7 @@ import {List} from "antd";
 import SearchInput from "../Utility/SearchInput";
 
 let accountStorage = ls("__graphene__");
-const DEFISHARES_CHAIN_PREFIX = "300a25f6";
+const DEFISHARES_CHAIN_PREFIX = "7089639a";
 
 class Assets extends React.Component {
     constructor(props) {

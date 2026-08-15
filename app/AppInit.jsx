@@ -27,7 +27,7 @@ import {HashRouter, BrowserRouter} from "react-router-dom";
 const Router = __HASH_HISTORY__ ? HashRouter : BrowserRouter;
 const DEFISHARES_ADDRESS_PREFIX = "DFS";
 const DEFISHARES_CHAIN_ID =
-    "c2b353a339cd3a997d09106e83948e7d9e9fbfd7cba1874ac80113487ffdfcc4";
+    "7089639ad55d91ef53946f3fc4dc86ea5b8a4917edcfce6d3c39bc259657acb5";
 
 // DEPRECATED / WARNING: this is deactivated because there is a race condition for some components when log is saved,
 //                       since it calls setState. If the subcomponent does not have a tailored rerendering logic, this may a WSOD

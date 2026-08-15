@@ -13,13 +13,12 @@ import {
     getUnits
 } from "branding";
 
-const DEFISHARES_CHAIN_PREFIX = "300a25f6";
+const DEFISHARES_CHAIN_PREFIX = "7089639a";
 const BITSHARES_TESTNET_CHAIN_PREFIX = "39f5e2ed";
 const CORE_ASSET = "DFS";
 const LEGACY_DEFISHARES_API_NODES = new Set([
     "ws://127.0.0.1:8090",
-    "ws://43.161.222.116/ws/",
-    "wss://api.defishares.org/snapshot-ws/"
+    "ws://43.161.222.116/ws/"
 ]);
 
 const STORAGE_KEY = "__graphene__";
@@ -502,14 +501,20 @@ class SettingsStore {
                 bases[this.starredKey] ||
                 bases[`markets_${DEFISHARES_CHAIN_PREFIX}`];
             let storedBases = ss.get(this.basesKey, []);
-            storedBases = storedBases
-                .map(base => (base === "BTS" ? CORE_ASSET : base))
-                .filter(base => defaultBases.indexOf(base) !== -1);
+            storedBases = Array.from(
+                new Set(
+                    storedBases
+                        .map(base => (base === "BTS" ? CORE_ASSET : base))
+                        .filter(base => defaultBases.indexOf(base) !== -1)
+                )
+            );
             this.preferredBases = Immutable.List(
                 storedBases.length ? storedBases : defaultBases
             );
 
-            this.chainMarkets = topMarkets[this.starredKey] || [];
+            this.chainMarkets = Array.from(
+                new Set(topMarkets[this.starredKey] || [])
+            ).sort();
 
             let defaultMarkets = this._getDefaultMarkets();
             this.defaultMarkets = Immutable.Map(defaultMarkets);
@@ -529,15 +534,16 @@ class SettingsStore {
         });
 
         function addMarkets(target, base, markets) {
+            const marketKeys = new Set();
             markets
                 .filter(a => {
                     return a !== base;
                 })
                 .forEach(market => {
-                    target.push([
-                        `${market}_${base}`,
-                        {quote: market, base: base}
-                    ]);
+                    const marketKey = `${market}_${base}`;
+                    if (marketKeys.has(marketKey)) return;
+                    marketKeys.add(marketKey);
+                    target.push([marketKey, {quote: market, base: base}]);
                 });
         }
 

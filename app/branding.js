@@ -1,9 +1,78 @@
 import {Apis} from "bitsharesjs-ws";
 
 const DEFISHARES_CHAIN_ID =
-    "300a25f6095a6a2e67c5c4f0e7c9a8ea602ba72c1ccc425ee436e1d5690ced2d";
+    "7089639ad55d91ef53946f3fc4dc86ea5b8a4917edcfce6d3c39bc259657acb5";
 const BITSHARES_TESTNET_CHAIN_ID =
     "39f5e2ede1f8bc1a3a54a7914414e3779e33193f1f5693510e73cb7a87617447";
+
+const DEFISHARES_MAINNET_BASES = ["DFS", "USD", "GOLD"];
+const DEFISHARES_GENESIS_ASSETS = [
+    "GOLD",
+    "USD",
+    "EUR",
+    "CNY",
+    "JPY",
+    "GBP",
+    "CHF",
+    "HKD",
+    "KRW",
+    "INR",
+    "CAD",
+    "AUD",
+    "SGD",
+    "TWD",
+    "RUB",
+    "BRL",
+    "MXN",
+    "ZAR",
+    "TRY",
+    "AED",
+    "SAR",
+    "SEK",
+    "NOK",
+    "DKK",
+    "PLN",
+    "THB",
+    "IDR",
+    "MYR",
+    "VND",
+    "PHP",
+    "XAU",
+    "XAG",
+    "XPT",
+    "XPD",
+    "US",
+    "BTC",
+    "ETH",
+    "SILVER",
+    "DEEPSEEK",
+    "MOUTAI",
+    "ABC",
+    "ICBC",
+    "CXMT",
+    "TENCENT",
+    "US.AAPL",
+    "US.MSFT",
+    "US.NVDA",
+    "US.AMZN",
+    "US.GOOGL",
+    "US.META",
+    "US.TSLA",
+    "US.AVGO",
+    "US.BRKA",
+    "US.JPM",
+    "US.VISA",
+    "US.WMT",
+    "US.LLY",
+    "US.SNDK",
+    "US.SPCX",
+    "US.INTC",
+    "US.AMD",
+    "US.CSCO"
+];
+const DEFISHARES_MAINNET_QUOTES = Array.from(
+    new Set(DEFISHARES_MAINNET_BASES.concat(DEFISHARES_GENESIS_ASSETS))
+).sort();
 /** This file centralized customization and branding efforts throughout the whole wallet and is meant to facilitate
  *  the process.
  *
@@ -128,7 +197,7 @@ export function getMyMarketsBases() {
     if (_isTestnet()) {
         return ["TEST"];
     }
-    return ["DFS", "GOLD"];
+    return DEFISHARES_MAINNET_BASES.slice();
 }
 
 /**
@@ -140,7 +209,7 @@ export function getMyMarketsQuotes() {
     if (_isTestnet()) {
         return ["TEST"];
     }
-    return ["DFS", "GOLD"];
+    return DEFISHARES_MAINNET_QUOTES.slice();
 }
 
 /**
@@ -152,10 +221,13 @@ export function getFeaturedMarkets(quotes = []) {
     if (_isTestnet()) {
         return [["USD", "TEST"]];
     }
-    return [
-        ["GOLD", "DFS"],
-        ["DFS", "GOLD"]
-    ].filter(a => {
+    const markets = [];
+    DEFISHARES_MAINNET_BASES.forEach(base => {
+        DEFISHARES_MAINNET_QUOTES.forEach(quote => {
+            if (quote !== base) markets.push([quote, base]);
+        });
+    });
+    return markets.filter(a => {
         if (!quotes.length) return true;
         return quotes.indexOf(a[0]) !== -1;
     });

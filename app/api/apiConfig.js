@@ -130,7 +130,7 @@ export const settingsAPIs = {
     WS_NODE_LIST: [
         {
             url: "wss://api.defishares.org/ws/",
-            location: "DefiShares Public Testnet"
+            location: "DefiShares Mainnet"
         },
         {
             url: "wss://api.defishares.org/snapshot-ws/",
