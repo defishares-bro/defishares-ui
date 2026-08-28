@@ -189,6 +189,8 @@ export default function opComponents(opType, props, opts) {
             return <BondClaimCollaterial {...props} {...opts} />;
 
         case "worker_create":
+        case "worker_create_gold":
+        case "worker_create_gold_refund":
             return <WorkerCreate {...props} {...opts} />;
 
         case "balance_claim":

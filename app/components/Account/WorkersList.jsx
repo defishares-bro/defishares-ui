@@ -4,13 +4,13 @@ import utils from "common/utils";
 import FormattedAsset from "../Utility/FormattedAsset";
 import LinkToAccountById from "../Utility/LinkToAccountById";
 import BindToChainState from "../Utility/BindToChainState";
-import {EquivalentValueComponent} from "../Utility/EquivalentValueComponent";
 import Icon from "components/Icon/Icon";
 import PaginatedList from "components/Utility/PaginatedList";
 import Translate from "react-translate-component";
 import AssetName from "../Utility/AssetName";
 import stringSimilarity from "string-similarity";
 import {hiddenProposals} from "../../lib/common/hideProposals";
+import {getWorkerPayment} from "../../lib/chain/goldWorker";
 
 class WorkerList extends React.Component {
     constructor(props) {
@@ -47,7 +47,7 @@ class WorkerList extends React.Component {
         this.props.onChangeVotes(addVotes, removeVotes);
     }
 
-    getHeader(workerTableIndex, preferredUnit) {
+    getHeader(workerTableIndex, preferredUnit, workerBudgetAsset) {
         return [
             workerTableIndex === 2
                 ? null
@@ -286,7 +286,7 @@ class WorkerList extends React.Component {
                                       fontSize: "0.8rem"
                                   }}
                               >
-                                  (<AssetName name={preferredUnit} />)
+                                  (DFS / GOLD)
                               </div>
                           </span>
                       ),
@@ -307,11 +307,10 @@ class WorkerList extends React.Component {
                                           "0.00"
                                       )
                                   ) : (
-                                      <EquivalentValueComponent
+                                      <FormattedAsset
                                           hide_asset
-                                          fromAsset="1.3.0"
-                                          toAsset={item.preferredUnit}
                                           amount={item.rest}
+                                          asset={item.assetId}
                                       />
                                   )}
                               </span>
@@ -332,7 +331,7 @@ class WorkerList extends React.Component {
                                 fontSize: "0.8rem"
                             }}
                         >
-                            (<AssetName name={preferredUnit} />)
+                            (DFS / GOLD)
                         </div>
                     </span>
                 ),
@@ -356,13 +355,18 @@ class WorkerList extends React.Component {
                                       ].bind(this, item)
                             }
                         >
-                            <EquivalentValueComponent
-                                hide_asset
-                                fromAsset="1.3.0"
-                                toAsset={item.preferredUnit}
-                                amount={item.daily_pay}
-                                style={{whiteSpace: "nowrap"}}
-                            />
+                            {item.kind === "gold_refund" ? (
+                                `${(item.refundBudgetRatio / 100).toFixed(
+                                    2
+                                )}% refund`
+                            ) : (
+                                <FormattedAsset
+                                    hide_asset
+                                    amount={item.daily_pay}
+                                    asset={item.assetId}
+                                    style={{whiteSpace: "nowrap"}}
+                                />
+                            )}
                         </span>
                     );
                 }
@@ -418,12 +422,18 @@ class WorkerList extends React.Component {
         ].filter(n => n);
     }
 
-    getData(workers, voteThreshold = 0) {
+    _getWorkerPayment(worker, workerBudgetAsset) {
+        const payment = getWorkerPayment(worker);
+        return {...payment, isGoldWorker: payment.kind === "gold"};
+    }
+
+    getData(workers, workerBudgetAsset, voteThreshold = 0) {
         let {hasProxy, proxy_vote_ids, vote_ids} = this.props;
         vote_ids = hasProxy ? proxy_vote_ids : vote_ids;
         voteThreshold = voteThreshold || 0;
         return workers.map((item, index) => {
             let worker = item.worker.toJS();
+            const payment = this._getWorkerPayment(worker, workerBudgetAsset);
             const rank = index + 1;
             let total_votes =
                 worker.total_votes_for - worker.total_votes_against;
@@ -435,10 +445,10 @@ class WorkerList extends React.Component {
 
             let fundedPercent = 0;
 
-            if (worker.daily_pay < item.rest) {
+            if (payment.kind === "gold" && payment.amount < item.rest) {
                 fundedPercent = 100;
-            } else if (item.rest > 0) {
-                fundedPercent = (item.rest / worker.daily_pay) * 100;
+            } else if (payment.kind === "gold" && item.rest > 0) {
+                fundedPercent = (item.rest / payment.amount) * 100;
             }
 
             let startDate = counterpart.localize(
@@ -469,8 +479,10 @@ class WorkerList extends React.Component {
                         ? null
                         : {isExpired, fundedPercent},
                 daily_pay: {
-                    preferredUnit: item.preferredUnit,
-                    daily_pay: worker.daily_pay,
+                    daily_pay: payment.amount,
+                    assetId: payment.assetId,
+                    kind: payment.kind,
+                    refundBudgetRatio: payment.refundBudgetRatio,
                     proxy: hasProxy,
                     approvalState,
                     worker: item.worker,
@@ -482,8 +494,8 @@ class WorkerList extends React.Component {
                         : {
                               rest: item.rest,
                               isExpired,
-                              preferredUnit: item.preferredUnit,
-                              rest: item.rest
+                              assetId: workerBudgetAsset,
+                              kind: payment.kind
                           },
                 toggle: {
                     proxy: hasProxy,
@@ -495,7 +507,12 @@ class WorkerList extends React.Component {
         });
     }
 
-    _getMappedWorkers(workers, maxDailyPayout, filterSearch) {
+    _getMappedWorkers(
+        workers,
+        maxDailyPayout,
+        workerBudgetAsset,
+        filterSearch
+    ) {
         let now = new Date();
         let remainingDailyPayout = maxDailyPayout;
         let voteThreshold = undefined;
@@ -512,11 +529,19 @@ class WorkerList extends React.Component {
                     new Date(worker.get("work_begin_date") + "Z") > now;
                 worker.isExpired =
                     new Date(worker.get("work_end_date") + "Z") <= now;
-                let dailyPay = parseInt(worker.get("daily_pay"), 10);
+                const payment = this._getWorkerPayment(
+                    worker.toJS(),
+                    workerBudgetAsset
+                );
+                const dailyPay = payment.kind === "gold" ? payment.amount : 0;
                 worker.votes =
                     worker.get("total_votes_for") -
                     worker.get("total_votes_against");
-                if (remainingDailyPayout > 0 && worker.isOngoing) {
+                if (
+                    payment.kind === "gold" &&
+                    remainingDailyPayout > 0 &&
+                    worker.isOngoing
+                ) {
                     worker.active = true;
                     remainingDailyPayout = remainingDailyPayout - dailyPay;
                     if (remainingDailyPayout <= 0 && !voteThreshold) {
@@ -524,6 +549,24 @@ class WorkerList extends React.Component {
                         voteThreshold = worker.votes;
                     }
                     worker.remainingPayout = remainingDailyPayout + dailyPay;
+                } else if (
+                    payment.kind === "gold_refund" &&
+                    remainingDailyPayout > 0 &&
+                    worker.isOngoing
+                ) {
+                    worker.active = true;
+                    const ratio = Math.min(
+                        10000,
+                        Math.max(0, payment.refundBudgetRatio || 0)
+                    );
+                    const rejected = Math.floor(
+                        (remainingDailyPayout * ratio) / 10000
+                    );
+                    remainingDailyPayout -= rejected;
+                    worker.remainingPayout = remainingDailyPayout;
+                    if (remainingDailyPayout <= 0 && !voteThreshold) {
+                        voteThreshold = worker.votes;
+                    }
                 } else {
                     worker.active = false;
                     worker.remainingPayout = 0;
@@ -563,18 +606,24 @@ class WorkerList extends React.Component {
         let {
             workerTableIndex,
             preferredUnit,
+            workerBudgetAsset,
             setWorkersLength,
             workerBudget,
             hideLegacyProposals,
             getWorkerArray,
             filterSearch
         } = this.props;
-        const workersHeader = this.getHeader(workerTableIndex, preferredUnit);
+        const workersHeader = this.getHeader(
+            workerTableIndex,
+            preferredUnit,
+            workerBudgetAsset
+        );
 
         let workerArray = getWorkerArray();
         let {mappedWorkers, voteThreshold} = this._getMappedWorkers(
             workerArray,
             workerBudget,
+            workerBudgetAsset,
             filterSearch
         );
 
@@ -701,7 +750,7 @@ class WorkerList extends React.Component {
             <PaginatedList
                 className="table dashboard-table table-hover"
                 rowClassName={this._decideRowClassName.bind(this)}
-                rows={this.getData(workers, voteThreshold)}
+                rows={this.getData(workers, workerBudgetAsset, voteThreshold)}
                 header={workersHeader}
                 pageSize={50}
                 label="utility.total_x_assets"

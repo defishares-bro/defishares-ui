@@ -17,7 +17,9 @@ class CreateWorker extends React.Component {
             end: null,
             pay: null,
             url: "http://",
-            vesting: 7
+            vesting: 7,
+            workerType: "gold",
+            refundRatio: 100
         };
     }
 
@@ -53,7 +55,6 @@ class CreateWorker extends React.Component {
     }
 
     render() {
-        console.log("state:", this.state);
         return (
             <div className="grid-block" style={{paddingTop: 20}}>
                 <div className="grid-content large-9 large-offset-3 small-12">
@@ -128,14 +129,49 @@ class CreateWorker extends React.Component {
                         />
 
                         <label>
-                            <Translate content="explorer.workers.daily_pay" />
-                            <input
-                                onChange={e => {
-                                    this.setState({pay: e.target.value});
-                                }}
-                                type="number"
-                            />
+                            Worker type
+                            <select
+                                value={this.state.workerType}
+                                onChange={e =>
+                                    this.setState({workerType: e.target.value})
+                                }
+                            >
+                                <option value="gold">GOLD worker</option>
+                                <option value="refund">
+                                    GOLD refund threshold worker
+                                </option>
+                            </select>
                         </label>
+
+                        {this.state.workerType === "refund" ? (
+                            <label>
+                                Refund ratio (%)
+                                <input
+                                    value={this.state.refundRatio}
+                                    min="0.01"
+                                    max="100"
+                                    step="0.01"
+                                    onChange={e =>
+                                        this.setState({
+                                            refundRatio: e.target.value
+                                        })
+                                    }
+                                    type="number"
+                                />
+                            </label>
+                        ) : (
+                            <label>
+                                <Translate content="explorer.workers.daily_pay" />
+                                <input
+                                    onChange={e => {
+                                        this.setState({pay: e.target.value});
+                                    }}
+                                    type="number"
+                                    min="0.00001"
+                                    step="0.00001"
+                                />
+                            </label>
+                        )}
                         <Translate
                             content="explorer.workers.pay_text"
                             component="p"
@@ -187,16 +223,13 @@ class CreateWorker extends React.Component {
     }
 }
 
-export default (CreateWorker = connect(
-    CreateWorker,
-    {
-        listenTo() {
-            return [AccountStore];
-        },
-        getProps() {
-            return {
-                currentAccount: AccountStore.getState().currentAccount
-            };
-        }
+export default CreateWorker = connect(CreateWorker, {
+    listenTo() {
+        return [AccountStore];
+    },
+    getProps() {
+        return {
+            currentAccount: AccountStore.getState().currentAccount
+        };
     }
-));
+});

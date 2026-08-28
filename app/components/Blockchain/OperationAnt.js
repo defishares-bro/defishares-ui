@@ -293,8 +293,8 @@ class Operation {
                     op[1].new_listing === listings.no_listing
                         ? "unlisted_by"
                         : op[1].new_listing === listings.white_listed
-                            ? "whitelisted_by"
-                            : "blacklisted_by";
+                        ? "whitelisted_by"
+                        : "blacklisted_by";
                 column = (
                     <span>
                         <TranslateWithLinks
@@ -1040,29 +1040,34 @@ class Operation {
                 break;
 
             case "worker_create":
+            case "worker_create_gold":
+            case "worker_create_gold_refund":
                 column = (
                     <span>
-                        <TranslateWithLinks
-                            string="operation.worker_create"
-                            keys={[
-                                {
-                                    type: "account",
-                                    value: op[1].owner,
-                                    arg: "account"
-                                },
-                                {
-                                    type: "amount",
-                                    value: {
-                                        amount: op[1].daily_pay,
-                                        asset_id: "1.3.0"
+                        {op[1].refund_budget_ratio !== undefined ? (
+                            `${op[1].name} (${op[1].refund_budget_ratio /
+                                100}% refund)`
+                        ) : (
+                            <TranslateWithLinks
+                                string="operation.worker_create"
+                                keys={[
+                                    {
+                                        type: "account",
+                                        value: op[1].owner,
+                                        arg: "account"
                                     },
-                                    arg: "pay"
-                                }
-                            ]}
-                            params={{
-                                name: op[1].name
-                            }}
-                        />
+                                    {
+                                        type: "amount",
+                                        value: op[1].gold_daily_pay || {
+                                            amount: op[1].daily_pay,
+                                            asset_id: "1.3.0"
+                                        },
+                                        arg: "pay"
+                                    }
+                                ]}
+                                params={{name: op[1].name}}
+                            />
+                        )}
                     </span>
                 );
                 break;

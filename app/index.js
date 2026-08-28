@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import "./lib/chain/defisharesProtocol";
 import AppInit from "./AppInit";
 if (__PERFORMANCE_DEVTOOL__) {
     const {registerObserver} = require("react-perf-devtool");

@@ -1,7 +1,7 @@
 import React from "react";
 import Translate from "react-translate-component";
 import FormattedAsset from "../Utility/FormattedAsset";
-import {ChainStore} from "bitsharesjs";
+import {ChainStore, FetchChain} from "bitsharesjs";
 import utils from "common/utils";
 import WalletActions from "actions/WalletActions";
 import {Apis} from "bitsharesjs-ws";
@@ -48,6 +48,28 @@ class AccountVesting extends React.Component {
             .db_api()
             .exec("get_vesting_balances", [accountId])
             .then(vesting_balances => {
+                const assetIds = Array.from(
+                    new Set(
+                        vesting_balances
+                            .filter(item => item && item.balance)
+                            .map(item => item.balance.asset_id)
+                            .filter(Boolean)
+                    )
+                );
+
+                return Promise.all(
+                    assetIds.map(assetId =>
+                        FetchChain("getAsset", assetId).catch(error => {
+                            console.warn(
+                                `Unable to load vesting asset ${assetId}`,
+                                error
+                            );
+                            return null;
+                        })
+                    )
+                ).then(() => vesting_balances);
+            })
+            .then(vesting_balances => {
                 this.mapVestingBalances(vesting_balances);
                 this.setState({
                     loading: false
@@ -67,7 +89,12 @@ class AccountVesting extends React.Component {
             return null;
         }
         let vesting_balances = vb.filter(item => {
-            return item.balance.amount && item.balance.asset_id;
+            return (
+                item &&
+                item.balance &&
+                item.balance.amount &&
+                item.balance.asset_id
+            );
         });
         vesting_balances = vesting_balances.map(item => {
             let cvbAsset,

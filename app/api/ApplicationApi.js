@@ -7,9 +7,9 @@ import {
     TransactionBuilder,
     TransactionHelper,
     FetchChain,
-    ChainStore,
     ChainTypes
 } from "bitsharesjs";
+import "lib/chain/defisharesProtocol";
 import counterpart from "counterpart";
 import {Notification} from "bitshares-ui-style-guide";
 
@@ -443,44 +443,73 @@ const ApplicationApi = {
         });
     },
 
-    createWorker(options, account) {
-        return new Promise((resolve, reject) => {
-            let tr = new TransactionBuilder();
-            const core = ChainStore.getAsset("1.3.0");
-            if (!core)
-                reject(new Error("Can't find core asset, please try again"));
-            let precision = Math.pow(10, core.get("precision"));
+    async createWorker(options, account) {
+        const ownerAccount = await FetchChain("getAccount", account);
+        if (!ownerAccount) {
+            throw new Error("Can't find the owner account, please try again");
+        }
 
-            const owner = ChainStore.getAccount(account).get("id");
-            if (!owner)
-                reject(
-                    new Error("Can't find the owner account, please try again")
-                );
+        const tr = new TransactionBuilder();
+        const operation = {
+            fee: {
+                amount: 0,
+                asset_id: accountUtils.getFinalFeeAsset(
+                    account,
+                    options.workerType === "refund"
+                        ? "worker_create_gold_refund"
+                        : "worker_create_gold"
+                )
+            },
+            owner: ownerAccount.get("id"),
+            work_begin_date: options.start,
+            work_end_date: options.end,
+            name: options.title,
+            url: options.url
+        };
 
-            try {
-                tr.add_type_operation("worker_create", {
-                    fee: {
-                        amount: 0,
-                        asset_id: accountUtils.getFinalFeeAsset(
-                            account,
-                            "worker_create"
-                        )
-                    },
-                    owner,
-                    work_begin_date: options.start,
-                    work_end_date: options.end,
-                    daily_pay: options.pay * precision,
-                    name: options.title,
-                    url: options.url,
-                    initializer: [1, {pay_vesting_period_days: options.vesting}]
-                });
-            } catch (err) {
-                reject(err);
+        if (options.workerType === "refund") {
+            const refundRatio = Number(options.refundRatio);
+            if (
+                !Number.isFinite(refundRatio) ||
+                refundRatio <= 0 ||
+                refundRatio > 100
+            ) {
+                throw new Error("Refund ratio must be between 0.01 and 100");
             }
-            WalletDb.process_transaction(tr, null, true)
-                .then(resolve)
-                .catch(reject);
-        });
+
+            operation.refund_budget_ratio = Math.round(refundRatio * 100);
+            tr.add_type_operation("worker_create_gold_refund", operation);
+        } else {
+            const gold = await FetchChain("getAsset", "GOLD");
+            if (!gold) {
+                throw new Error("Can't find GOLD asset, please try again");
+            }
+
+            const pay = Number(options.pay);
+            if (!Number.isFinite(pay) || pay <= 0) {
+                throw new Error("Daily GOLD pay must be greater than zero");
+            }
+
+            const precision = Math.pow(10, gold.get("precision"));
+            const goldDailyPay = Math.round(pay * precision);
+            if (!Number.isSafeInteger(goldDailyPay) || goldDailyPay <= 0) {
+                throw new Error(
+                    "Daily GOLD pay is outside the supported range"
+                );
+            }
+
+            operation.gold_daily_pay = {
+                amount: goldDailyPay,
+                asset_id: gold.get("id")
+            };
+            operation.initializer = [
+                1,
+                {pay_vesting_period_days: options.vesting}
+            ];
+            tr.add_type_operation("worker_create_gold", operation);
+        }
+
+        return WalletDb.process_transaction(tr, null, true);
     },
 
     updateAccount(updateObject) {

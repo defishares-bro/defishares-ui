@@ -3,7 +3,7 @@ import React from "react";
 import Immutable from "immutable";
 import ChainTypes from "../Utility/ChainTypes";
 import BindToChainState from "../Utility/BindToChainState";
-import {ChainStore} from "bitsharesjs";
+import {ChainStore, FetchChain} from "bitsharesjs";
 import FormattedAsset from "../Utility/FormattedAsset";
 import Translate from "react-translate-component";
 import TimeAgo from "../Utility/TimeAgo";
@@ -388,8 +388,25 @@ class Witnesses extends React.Component {
 
         this.state = {
             filterWitness: props.filterWitness || "",
-            cardView: props.cardView
+            cardView: props.cardView,
+            goldAsset: null,
+            goldReserveVault: undefined
         };
+    }
+
+    componentDidMount() {
+        Promise.all([
+            FetchChain("getAsset", "GOLD"),
+            FetchChain("getObject", "2.19.0")
+        ])
+            .then(([goldAsset, goldReserveVault]) => {
+                this.setState({goldAsset, goldReserveVault});
+            })
+            .catch(error => {
+                // Pre-hardfork nodes do not expose the implementation object.
+                console.warn("Unable to load the GOLD reserve vault", error);
+                this.setState({goldReserveVault: null});
+            });
     }
 
     _onFilter(e) {
@@ -412,8 +429,16 @@ class Witnesses extends React.Component {
 
     render() {
         let {dynGlobalObject, globalObject} = this.props;
+        const {goldAsset, goldReserveVault} = this.state;
         dynGlobalObject = dynGlobalObject.toJS();
         globalObject = globalObject.toJS();
+
+        const goldPayPerBlock = goldAsset
+            ? Math.pow(10, goldAsset.get("precision")) / 100000
+            : null;
+        const goldBudget = goldReserveVault
+            ? goldReserveVault.get("gold_pool_balance")
+            : null;
 
         let current = ChainStore.getObject(dynGlobalObject.current_witness),
             currentAccount = null;
@@ -470,22 +495,24 @@ class Witnesses extends React.Component {
                                                 {dynGlobalObject.participation}%
                                             </td>
                                             <td>
-                                                <FormattedAsset
-                                                    amount={
-                                                        globalObject.parameters
-                                                            .witness_pay_per_block
-                                                    }
-                                                    asset="1.3.0"
-                                                />
+                                                {goldPayPerBlock === null ? (
+                                                    "-"
+                                                ) : (
+                                                    <FormattedAsset
+                                                        amount={goldPayPerBlock}
+                                                        asset="GOLD"
+                                                    />
+                                                )}
                                             </td>
                                             <td>
-                                                {" "}
-                                                <FormattedAsset
-                                                    amount={
-                                                        dynGlobalObject.witness_budget
-                                                    }
-                                                    asset="1.3.0"
-                                                />
+                                                {goldBudget === null ? (
+                                                    "-"
+                                                ) : (
+                                                    <FormattedAsset
+                                                        amount={goldBudget}
+                                                        asset="GOLD"
+                                                    />
+                                                )}
                                             </td>
                                             <td>
                                                 {" "}

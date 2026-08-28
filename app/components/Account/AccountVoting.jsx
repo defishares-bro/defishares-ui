@@ -17,6 +17,11 @@ import AccountStore from "stores/AccountStore";
 import Witnesses from "./Voting/Witnesses";
 import Committee from "./Voting/Committee";
 import Workers from "./Voting/Workers";
+import {Apis} from "bitsharesjs-ws";
+import {
+    GOLD_RESERVE_VAULT_ID,
+    getGoldWorkerBudget
+} from "../../lib/chain/goldWorker";
 
 const WITNESSES_KEY = "witnesses";
 const COMMITTEE_KEY = "committee";
@@ -56,6 +61,7 @@ class AccountVoting extends React.Component {
             all_committee: Immutable.List(),
             hideLegacyProposals: true,
             filterSearch: "",
+            goldReserveVault: null,
             tabs: [
                 {
                     name: "witnesses",
@@ -94,6 +100,11 @@ class AccountVoting extends React.Component {
         this.updateAccountData(this.props);
         this._getVoteObjects();
         this._getVoteObjects("committee");
+        this.refreshGoldReserveVault();
+        this.goldReserveTimer = setInterval(
+            this.refreshGoldReserveVault.bind(this),
+            60000
+        );
     }
 
     shouldComponentUpdate(np, ns) {
@@ -105,8 +116,29 @@ class AccountVoting extends React.Component {
             ns.current_proxy_input !== this.state.current_proxy_input ||
             ns.filterSearch !== this.state.filterSearch ||
             ns.witnesses !== this.state.witnesses ||
-            ns.committee !== this.state.committee
+            ns.committee !== this.state.committee ||
+            ns.goldReserveVault !== this.state.goldReserveVault
         );
+    }
+
+    componentWillUnmount() {
+        if (this.goldReserveTimer) clearInterval(this.goldReserveTimer);
+    }
+
+    refreshGoldReserveVault() {
+        if (!Apis.instance()) return;
+        Apis.instance()
+            .db_api()
+            .exec("get_objects", [[GOLD_RESERVE_VAULT_ID]])
+            .then(objects => {
+                const vault = objects && objects[0];
+                this.setState({
+                    goldReserveVault: vault ? Immutable.fromJS(vault) : null
+                });
+            })
+            .catch(error => {
+                console.warn("Unable to load the GOLD worker budget", error);
+            });
     }
 
     UNSAFE_componentWillReceiveProps(np) {
@@ -587,7 +619,12 @@ class AccountVoting extends React.Component {
         const preferredUnit = this.props.settings.get("unit") || "1.3.0";
         const hasProxy = !!proxy_account_id; // this.props.account.getIn(["options", "voting_account"]) !== "1.2.5";
         const {globalObject, account} = this.props;
-        const {totalBudget, workerBudget} = this._getBudgets(globalObject);
+        const {
+            totalBudget,
+            workerBudget,
+            dailyBudget,
+            workerBudgetAsset
+        } = this._getBudgets(globalObject);
 
         const actionButtons = this._getActionButtons();
 
@@ -684,6 +721,8 @@ class AccountVoting extends React.Component {
                                         preferredUnit={preferredUnit}
                                         totalBudget={totalBudget}
                                         workerBudget={workerBudget}
+                                        dailyBudget={dailyBudget}
+                                        workerBudgetAsset={workerBudgetAsset}
                                         hideLegacyProposals={
                                             hideLegacyProposals
                                         }
@@ -701,6 +740,21 @@ class AccountVoting extends React.Component {
     }
 
     _getBudgets(globalObject) {
+        const goldBudget = getGoldWorkerBudget(
+            this.state.goldReserveVault,
+            ChainStore.getObject("2.1.0")
+                ? ChainStore.getObject("2.1.0").get("time")
+                : Date.now()
+        );
+        if (goldBudget) {
+            return {
+                totalBudget: goldBudget.totalBudget,
+                workerBudget: goldBudget.availableBudget,
+                dailyBudget: goldBudget.dailyBudget,
+                workerBudgetAsset: goldBudget.assetId
+            };
+        }
+
         let budgetObject;
         if (this.state.lastBudgetObject) {
             budgetObject = ChainStore.getObject(this.state.lastBudgetObject);
@@ -722,7 +776,12 @@ class AccountVoting extends React.Component {
                 workerBudget
             );
         }
-        return {totalBudget, workerBudget};
+        return {
+            totalBudget,
+            workerBudget,
+            dailyBudget: workerBudget,
+            workerBudgetAsset: "1.3.0"
+        };
     }
 
     _getProxyInput(accountHasProxy) {

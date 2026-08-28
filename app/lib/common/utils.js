@@ -30,7 +30,7 @@ var Utils = {
 
     get_asset_amount: function(amount, asset) {
         if (amount === 0) return amount;
-        if (!amount) return null;
+        if (!amount || !asset) return null;
         return (
             amount /
             this.get_asset_precision(

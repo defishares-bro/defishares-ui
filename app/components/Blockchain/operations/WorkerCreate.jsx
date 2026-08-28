@@ -4,6 +4,16 @@ import FormattedAsset from "../../Utility/FormattedAsset";
 import TranslateWithLinks from "../../Utility/TranslateWithLinks";
 
 export const WorkerCreate = ({op, fromComponent}) => {
+    if (op[0] === 79 || op[1].refund_budget_ratio !== undefined) {
+        return (
+            <span>
+                {op[1].name} ({op[1].refund_budget_ratio / 100}% refund)
+            </span>
+        );
+    }
+    const goldPay = op[1].gold_daily_pay;
+    const pay = goldPay || {amount: op[1].daily_pay, asset_id: "1.3.0"};
+
     if (fromComponent === "proposed_operation") {
         return (
             <span>
@@ -11,8 +21,8 @@ export const WorkerCreate = ({op, fromComponent}) => {
                 &nbsp;
                 <FormattedAsset
                     style={{fontWeight: "bold"}}
-                    amount={op[1].daily_pay}
-                    asset={"1.3.0"}
+                    amount={pay.amount}
+                    asset={pay.asset_id}
                 />
             </span>
         );
@@ -29,10 +39,7 @@ export const WorkerCreate = ({op, fromComponent}) => {
                         },
                         {
                             type: "amount",
-                            value: {
-                                amount: op[1].daily_pay,
-                                asset_id: "1.3.0"
-                            },
+                            value: pay,
                             arg: "pay"
                         }
                     ]}

@@ -1962,6 +1962,8 @@ class Transaction extends React.Component {
                     break;
 
                 case "worker_create":
+                case "worker_create_gold":
+                case "worker_create_gold_refund":
                     rows.push(
                         <tr key={key++}>
                             <td>
@@ -2006,10 +2008,22 @@ class Transaction extends React.Component {
                                 />
                             </td>
                             <td>
-                                <FormattedAsset
-                                    amount={op[1].daily_pay}
-                                    asset="1.3.0"
-                                />
+                                {op[1].refund_budget_ratio !== undefined ? (
+                                    `${op[1].refund_budget_ratio / 100}% refund`
+                                ) : (
+                                    <FormattedAsset
+                                        amount={
+                                            op[1].gold_daily_pay
+                                                ? op[1].gold_daily_pay.amount
+                                                : op[1].daily_pay
+                                        }
+                                        asset={
+                                            op[1].gold_daily_pay
+                                                ? op[1].gold_daily_pay.asset_id
+                                                : "1.3.0"
+                                        }
+                                    />
+                                )}
                             </td>
                         </tr>
                     );

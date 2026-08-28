@@ -4,16 +4,8 @@ import WorkersList from "../WorkersList";
 import {Link} from "react-router-dom";
 import AssetName from "../../Utility/AssetName";
 import counterpart from "counterpart";
-import {EquivalentValueComponent} from "../../Utility/EquivalentValueComponent";
 import FormattedAsset from "../../Utility/FormattedAsset";
-import {
-    Row,
-    Col,
-    Radio,
-    Input,
-    Icon as AntIcon,
-    Button
-} from "bitshares-ui-style-guide";
+import {Row, Col, Radio, Button} from "bitshares-ui-style-guide";
 import SearchInput from "../../Utility/SearchInput";
 
 export default class Workers extends React.Component {
@@ -49,6 +41,8 @@ export default class Workers extends React.Component {
             globalObject,
             totalBudget,
             workerBudget,
+            dailyBudget,
+            workerBudgetAsset,
             hideLegacyProposals,
             hasProxy,
             filterSearch,
@@ -150,8 +144,8 @@ export default class Workers extends React.Component {
                     </Row>
                     <Row>
                         <Col span={3}>
-                            <Translate content="account.votes.total_budget" /> (
-                            <AssetName name={preferredUnit} />)
+                            <Translate content="account.votes.reserve_pool" /> (
+                            <AssetName name={workerBudgetAsset} />)
                         </Col>
                         <Col
                             span={3}
@@ -160,13 +154,39 @@ export default class Workers extends React.Component {
                             }}
                         >
                             {globalObject ? (
-                                <EquivalentValueComponent
+                                <FormattedAsset
                                     hide_asset
-                                    fromAsset="1.3.0"
-                                    toAsset={preferredUnit}
                                     amount={totalBudget}
+                                    asset={workerBudgetAsset}
                                 />
                             ) : null}
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={3}>
+                            <Translate content="account.votes.daily_budget" /> (
+                            <AssetName name={workerBudgetAsset} />)
+                        </Col>
+                        <Col span={3} style={{marginLeft: "10px"}}>
+                            <FormattedAsset
+                                hide_asset
+                                amount={dailyBudget}
+                                asset={workerBudgetAsset}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={3}>
+                            <Translate content="account.votes.available_budget" />{" "}
+                            (
+                            <AssetName name={workerBudgetAsset} />)
+                        </Col>
+                        <Col span={3} style={{marginLeft: "10px"}}>
+                            <FormattedAsset
+                                hide_asset
+                                amount={workerBudget}
+                                asset={workerBudgetAsset}
+                            />
                         </Col>
                     </Row>
                 </div>
@@ -199,6 +219,8 @@ export default class Workers extends React.Component {
                         }
                     }}
                     workerBudget={workerBudget}
+                    dailyBudget={dailyBudget}
+                    workerBudgetAsset={workerBudgetAsset}
                     hideLegacyProposals={hideLegacyProposals}
                     hasProxy={hasProxy}
                     proxy_vote_ids={proxy_vote_ids}
